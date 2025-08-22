@@ -1,0 +1,1 @@
+GLuint loadTexture(const char* filename);
