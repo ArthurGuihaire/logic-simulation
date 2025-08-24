@@ -7,5 +7,5 @@ constexpr float textureVertices[4][2] = {
     {0.0f, 0.0f}, // bottom-left
     {1.0f, 0.0f}  // bottom-right
 };
-
+constexpr glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 #endif

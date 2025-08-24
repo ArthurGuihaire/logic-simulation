@@ -7,6 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set debug symbols
 #set(CMAKE_BUILD_TYPE Debug)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    add_compile_options(-Wall -Wextra -Wunused)
+elseif (MSVC)
+    add_compile_options(/W4)
+endif()
+
 cmake_policy(SET CMP0072 NEW)  # Prefer modern OpenGL behavior
 
 # Define source and include directories

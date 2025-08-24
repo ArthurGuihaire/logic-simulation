@@ -15,17 +15,21 @@ class TexturedObject {
         static unsigned int uniformProjectionViewLocation;
         static unsigned int uniformTextureLocation;
         glm::mat4 model;
+        static glm::vec3 cameraPosition;
+        static glm::vec3 cameraAngle;
         static glm::mat4 view;
         static glm::mat4 projection;
-        uint16_t rotationDegrees[3];
 
         static float lastMouseX;
         static float lastMouseY;
+        static float pitch;
+        static float yaw;
     public:
         TexturedObject(float (&startingVertices)[12], unsigned int textureID);
         void render();
         static void init(const int width, const int height);
         static void updateProjection(const int width, const int height);
-        static void updateView(const glm::mat4 viewUpdateMatrix);
+        static void updateView();
+        static void moveCamera(const glm::vec3 relativeMovement);
         static void updateMouse(const float mouseX, const float mouseY);
 };

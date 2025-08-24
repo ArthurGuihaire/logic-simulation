@@ -1,5 +1,6 @@
 #include "indexBuffer.hpp"
 #include "vertexBuffer.hpp"
+#include <glm/geometric.hpp>
 #include <memory>
 #include <textureRenderer.hpp>
 #include <openglPCH.hpp>
@@ -12,16 +13,16 @@ unsigned int TexturedObject::shader = 0;
 unsigned int TexturedObject::uniformModelLocation = 0;
 unsigned int TexturedObject::uniformProjectionViewLocation = 0;
 unsigned int TexturedObject::uniformTextureLocation = 0;
+glm::vec3 TexturedObject::cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
+glm::vec3 TexturedObject::cameraAngle = glm::vec3(0.0f, 0.0f, 1.0f);
 glm::mat4 TexturedObject::view = identity_mat4;
 glm::mat4 TexturedObject::projection = identity_mat4;
 float TexturedObject::lastMouseX = 0.0f;
 float TexturedObject::lastMouseY = 0.0f;
+float TexturedObject::pitch = 90.0f;
+float TexturedObject::yaw = 0.0f;
 
 TexturedObject::TexturedObject(float (&startingVertices)[12], unsigned int textureID) {
-    for(uint8_t i = 0; i < 3; i++) {
-        rotationDegrees[i] = 0;
-    }
-
     texture = textureID;
 
     model = identity_mat4;
@@ -60,26 +61,51 @@ void TexturedObject::init(const int width, const int height) {
     uniformProjectionViewLocation = glGetUniformLocation(shader, "projectionView");
     uniformTextureLocation = glGetUniformLocation(shader, "inputTexture");
 
-    view = glm::translate(identity_mat4, glm::vec3(0.0f, 0.0f, -3.0f));
     projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.01f, 100.0f);
+
+    cameraAngle.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    cameraAngle.y = sin(glm::radians(pitch));
+    cameraAngle.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 }
 
 void TexturedObject::updateProjection(const int width, const int height) {
     projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.01f, 100.0f);
 }
 
-void TexturedObject::updateView(const glm::mat4 viewUpdateMatrix) {
-    view = viewUpdateMatrix * view;
+void TexturedObject::updateView() {
+    cameraAngle.x = sin(glm::radians(pitch)) * cos(glm::radians(yaw));
+    cameraAngle.y = cos(glm::radians(pitch));
+    cameraAngle.z = sin(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+    view = glm::lookAt(cameraPosition, cameraPosition + cameraAngle, upVector);
 }
 
 void TexturedObject::updateMouse(const float mouseX, const float mouseY) {
     const float xOffset = mouseX - lastMouseX;
-    const float yOffset = mouseY - lastMouseY;
+    const float yOffset = mouseY - lastMouseY; // y is inverted since pitch=0 is up
     lastMouseX = mouseX;
     lastMouseY = mouseY;
-    const float magnitude = 0.004f * glm::sqrt(xOffset * xOffset + yOffset * yOffset);
-    glm::mat4 viewUpdateMatrix = glm::rotate(identity_mat4, magnitude, glm::vec3(yOffset, xOffset, 0.0f));
-    TexturedObject::updateView(viewUpdateMatrix);
+
+    pitch += yOffset;
+    yaw += xOffset;
+
+    if (pitch < 1.0f)
+        pitch = 1.0f;
+    else if (pitch > 179.0f)
+        pitch = 179.0f;
+
+    updateView();
+}
+
+void TexturedObject::moveCamera(const glm::vec3 relativeMovement) {
+    cameraPosition += glm::normalize(glm::vec3(cameraAngle.x, 0.0f, cameraAngle.z)) * relativeMovement.z;
+    cameraPosition += glm::vec3(0.0f, relativeMovement.y, 0.0f);
+    if (relativeMovement.x != 0.0f) {
+        glm::vec3 cameraAngleCross = glm::normalize(glm::cross(cameraAngle, upVector));
+        cameraPosition += cameraAngleCross * relativeMovement.x;
+    }
+
+    updateView();
 }
 
 void TexturedObject::render() {
