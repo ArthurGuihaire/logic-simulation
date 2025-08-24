@@ -20,7 +20,7 @@ glm::mat4 TexturedObject::projection = identity_mat4;
 float TexturedObject::lastMouseX = 0.0f;
 float TexturedObject::lastMouseY = 0.0f;
 float TexturedObject::pitch = 90.0f;
-float TexturedObject::yaw = 0.0f;
+float TexturedObject::yaw = 90.0f;
 
 TexturedObject::TexturedObject(float (&startingVertices)[12], unsigned int textureID) {
     texture = textureID;
