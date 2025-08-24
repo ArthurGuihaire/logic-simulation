@@ -10,11 +10,14 @@
 
 unsigned int TexturedObject::shader = 0;
 unsigned int TexturedObject::uniformModelLocation = 0;
-unsigned int TexturedObject::uniformViewLocation = 0;
-unsigned int TexturedObject::uniformProjectionLocation = 0;
+unsigned int TexturedObject::uniformProjectionViewLocation = 0;
 unsigned int TexturedObject::uniformTextureLocation = 0;
+glm::mat4 TexturedObject::view = identity_mat4;
+glm::mat4 TexturedObject::projection = identity_mat4;
+float TexturedObject::lastMouseX = 0.0f;
+float TexturedObject::lastMouseY = 0.0f;
 
-TexturedObject::TexturedObject(float startingVertices[12], unsigned int textureID) {
+TexturedObject::TexturedObject(float (&startingVertices)[12], unsigned int textureID) {
     for(uint8_t i = 0; i < 3; i++) {
         rotationDegrees[i] = 0;
     }
@@ -49,23 +52,44 @@ TexturedObject::TexturedObject(float startingVertices[12], unsigned int textureI
     ib = std::make_unique<IndexBuffer>(indices, 6);
 }
 
-void TexturedObject::init() {
+void TexturedObject::init(const int width, const int height) {
     ShaderProgramSource shaderSource = parseShader("shaders/renderTexture.shader");
     shader = createShader(shaderSource.VertexSource, shaderSource.FragmentSource);
 
     uniformModelLocation = glGetUniformLocation(shader, "model");
-    uniformViewLocation = glGetUniformLocation(shader, "view");
-    uniformProjectionLocation = glGetUniformLocation(shader, "projection");
+    uniformProjectionViewLocation = glGetUniformLocation(shader, "projectionView");
     uniformTextureLocation = glGetUniformLocation(shader, "inputTexture");
+
+    view = glm::translate(identity_mat4, glm::vec3(0.0f, 0.0f, -3.0f));
+    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.01f, 100.0f);
 }
 
-void TexturedObject::render(glm::mat4 view, glm::mat4 projection) {
+void TexturedObject::updateProjection(const int width, const int height) {
+    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.01f, 100.0f);
+}
+
+void TexturedObject::updateView(const glm::mat4 viewUpdateMatrix) {
+    view = viewUpdateMatrix * view;
+}
+
+void TexturedObject::updateMouse(const float mouseX, const float mouseY) {
+    const float xOffset = mouseX - lastMouseX;
+    const float yOffset = mouseY - lastMouseY;
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+    const float magnitude = 0.004f * glm::sqrt(xOffset * xOffset + yOffset * yOffset);
+    glm::mat4 viewUpdateMatrix = glm::rotate(identity_mat4, magnitude, glm::vec3(yOffset, xOffset, 0.0f));
+    TexturedObject::updateView(viewUpdateMatrix);
+}
+
+void TexturedObject::render() {
     glBindVertexArray(vao);
     glUseProgram(shader);
 
+    glm::mat4 projectionView = projection * view;
+
     glUniformMatrix4fv(uniformModelLocation, 1, GL_FALSE, &model[0][0]);
-    glUniformMatrix4fv(uniformViewLocation, 1, GL_FALSE, &view[0][0]);
-    glUniformMatrix4fv(uniformProjectionLocation, 1, GL_FALSE, &projection[0][0]);
+    glUniformMatrix4fv(uniformProjectionViewLocation, 1, GL_FALSE, &projectionView[0][0]);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
