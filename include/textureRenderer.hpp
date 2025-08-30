@@ -25,6 +25,7 @@ class TexturedObject {
         static float pitch;
         static float yaw;
     public:
+        static bool doUpdateMouse;
         TexturedObject(float (&startingVertices)[12], unsigned int textureID);
         void render();
         static void init(const int width, const int height);

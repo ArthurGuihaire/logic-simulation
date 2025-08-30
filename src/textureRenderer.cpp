@@ -5,7 +5,7 @@
 #include <textureRenderer.hpp>
 #include <openglPCH.hpp>
 #include <constants.hpp>
-#include <renderer_constants.hpp>
+#include <rendererConstants.hpp>
 #include <shaderLoader.hpp>
 #include <textureLoader.hpp>
 
@@ -21,6 +21,7 @@ float TexturedObject::lastMouseX = 0.0f;
 float TexturedObject::lastMouseY = 0.0f;
 float TexturedObject::pitch = 90.0f;
 float TexturedObject::yaw = 90.0f;
+bool TexturedObject::doUpdateMouse = true;
 
 TexturedObject::TexturedObject(float (&startingVertices)[12], unsigned int textureID) {
     texture = textureID;
@@ -54,7 +55,7 @@ TexturedObject::TexturedObject(float (&startingVertices)[12], unsigned int textu
 }
 
 void TexturedObject::init(const int width, const int height) {
-    ShaderProgramSource shaderSource = parseShader("shaders/renderTexture.shader");
+    ShaderProgramSource shaderSource = parseShader("shaders/renderWorldTexture.shader");
     shader = createShader(shaderSource.VertexSource, shaderSource.FragmentSource);
 
     uniformModelLocation = glGetUniformLocation(shader, "model");
@@ -69,7 +70,7 @@ void TexturedObject::init(const int width, const int height) {
 }
 
 void TexturedObject::updateProjection(const int width, const int height) {
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.01f, 100.0f);
+    projection = glm::perspective(glm::radians(90.0f), (float) width / (float) height, 0.01f, 100.0f);
 }
 
 void TexturedObject::updateView() {
@@ -86,15 +87,20 @@ void TexturedObject::updateMouse(const float mouseX, const float mouseY) {
     lastMouseX = mouseX;
     lastMouseY = mouseY;
 
-    pitch += yOffset;
-    yaw += xOffset;
+    if (doUpdateMouse) {
+        pitch += yOffset * sensitivity;
+        yaw += xOffset * sensitivity;
 
-    if (pitch < 1.0f)
-        pitch = 1.0f;
-    else if (pitch > 179.0f)
-        pitch = 179.0f;
+        if (pitch < 1.0f)
+            pitch = 1.0f;
+        else if (pitch > 179.0f)
+            pitch = 179.0f;
 
-    updateView();
+        updateView();
+    }
+    else {
+        doUpdateMouse = true;
+    }
 }
 
 void TexturedObject::moveCamera(const glm::vec3 relativeMovement) {
@@ -119,7 +125,7 @@ void TexturedObject::render() {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(uniformTextureLocation, 0); // 0 = GL_TEXTURE0
+    glUniform1i(uniformTextureLocation, 0);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
 
