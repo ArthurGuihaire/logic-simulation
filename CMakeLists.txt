@@ -39,7 +39,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR}/openglPCH.hpp)
 
 # Link required libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw glad dl)
 
 # Copy shaders and textures directories to the build directory
 file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR})

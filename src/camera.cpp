@@ -1,5 +1,5 @@
 #include <camera.hpp>
-#include <rendererConstants.hpp>
+#include <constants.hpp>
 
 Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYaw, int windowWidth, int windowHeight)
  : cameraPosition(startingPosition), pitch(startingPitch), yaw(startingYaw), doUpdateMouse(false)
@@ -9,7 +9,7 @@ Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYa
     cameraAngle.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 
     view = glm::lookAt(cameraPosition, cameraPosition + cameraAngle, upVector);
-    projection = projection = glm::perspective(glm::radians(45.0f), (float) windowWidth / (float) windowHeight, 0.01f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float) windowWidth / (float) windowHeight, 0.01f, 100.0f);
 }
 
 void Camera::updateProjection(const int windowWidth, const int windowHeight) {

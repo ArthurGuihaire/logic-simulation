@@ -5,7 +5,6 @@
 #include <textureRenderer.hpp>
 #include <openglPCH.hpp>
 #include <constants.hpp>
-#include <rendererConstants.hpp>
 #include <shaderLoader.hpp>
 #include <textureLoader.hpp>
 

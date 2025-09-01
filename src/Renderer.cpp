@@ -1,33 +1,54 @@
 #include <Renderer.hpp>
+#include <shaderType.hpp>
 
 Renderer::Renderer() {
     
 }
 
-void Renderer::addComponent(float componentVertices[], uint32_t numVertices, LogicType logicType) {
-    uint32_t vertexCount = numVertices / 3;
-    std::vector<uint32_t> vertexIndices;
-    vertexIndices.reserve(vertexCount);
-    vertices.reserve(numVertices + vertices.size()); // Reserve in advance to avoid repetitive allocation
+void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats, LogicType logicType) {
+    std::vector<float>& vertices = verticesPerShader[shaderType::Ethereal];
+    std::vector<uint32_t>& indices = indicesPerShader[shaderType::Ethereal];
+    uint32_t vertexCount = numVertexFloats / 3;
+    vertices.reserve(numVertexFloats + vertices.size()); // Reserve in advance to avoid repetitive allocation
+    indices.reserve(vertexCount + indices.size());
+
+    uint32_t firstComponentIndex = indices.size();
     for (uint32_t i = 0; i < vertexCount; i++) {
         bool vertexAlreadyExists = false;
-        for (uint32_t j = 0; j < sizeof(vertices) / (3 * sizeof(float)); j++) {
+        for (uint32_t j = 0; j < sizeof(shaderType::Ethereal) / (3 * sizeof(float)); j++) {
             if (componentVertices[3*i] == vertices[3*j] && componentVertices[3*i+1] == vertices[3*j+1] && componentVertices[3*i+2] == vertices[3*j+2]) {
                 vertexAlreadyExists = true;
-                vertexIndices[i] = j;
+                indices.push_back(j);
             }
         }
         if (!vertexAlreadyExists) {
-            vertexIndices[i] = vertices.size();
+            indices.push_back(vertices.size() / 3);
             vertices.push_back(componentVertices[3*i]);
             vertices.push_back(componentVertices[3*i+1]);
             vertices.push_back(componentVertices[3*i+2]);
         }
     }
 
-    Component newComponent{false, logicType, vertexIndices};
-    components.push_back(newComponent);
-
-    indices.reserve(indices.size() + vertexCount);
-    indices.insert(indices.end(), vertexIndices.begin(), vertexIndices.end());
+    //WORK IN PROGRESS Component newComponent{false, logicType, vertexCount};
+    //components.push_back(newComponent);
 }
+
+//Array-vertex model - much worse
+/*void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats, LogicType logicType) {
+    //See if vertex array has unused memory
+    std::pair<bool, uint32_t> freeMemoryVertex;
+    if (maybeFreeVertices) {
+        freeMemoryVertex = getFreeMemoryRegion(freeVectorMemory[shaderType::Default], numVertexFloats);
+        if (freeVectorMemory->empty())
+            maybeFreeVertices = false;
+    }
+    
+    //See if index array has unused memory
+    const uint32_t numVertices = numVertexFloats / 3;
+    std::pair<bool, uint32_t> freeMemoryIndex;
+    if (maybeFreeIndices) {
+        freeMemoryIndex = getFreeMemoryRegion(freeIndexMemory[shaderType::Default], numVertices);
+        if (freeIndexMemory->empty())
+            maybeFreeIndices = false;
+    }
+}*/
