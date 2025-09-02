@@ -9,10 +9,11 @@ void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats,
     std::vector<float>& vertices = verticesPerShader[shaderType::Ethereal];
     std::vector<uint32_t>& indices = indicesPerShader[shaderType::Ethereal];
     uint32_t vertexCount = numVertexFloats / 3;
-    vertices.reserve(numVertexFloats + vertices.size()); // Reserve in advance to avoid repetitive allocation
-    indices.reserve(vertexCount + indices.size());
-
+    uint32_t firstComponentVertex = vertices.size();
     uint32_t firstComponentIndex = indices.size();
+    vertices.reserve(numVertexFloats + firstComponentVertex); // Reserve in advance to avoid repetitive allocation
+    indices.reserve(vertexCount + firstComponentIndex);
+
     for (uint32_t i = 0; i < vertexCount; i++) {
         bool vertexAlreadyExists = false;
         for (uint32_t j = 0; j < sizeof(shaderType::Ethereal) / (3 * sizeof(float)); j++) {
@@ -29,8 +30,18 @@ void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats,
         }
     }
 
-    //WORK IN PROGRESS Component newComponent{false, logicType, vertexCount};
-    //components.push_back(newComponent);
+    VertexBuffer& vb = vertexBufferPerShader[shaderType::Ethereal];
+    if (vb.getBufferSize() < vb.getUsedMemorySize() + numVertexFloats * sizeof(float)) //Need a larger buffer, upload everything
+        vb.UploadBuffer(&vertices[0], vertices.size() * sizeof(vertices[0]));
+    else
+        vb.AddData(&vertices[firstComponentVertex], numVertexFloats * sizeof(float)); //Upload only vertices to be added
+
+    IndexBuffer& ib = indexBufferPerShader[shaderType::Ethereal];
+    if (ib.getBufferSize() < ib.getUsedMemorySize() + numVertexFloats * sizeof(float))
+        ib.UploadBuffer(&vertices[0], vertices.size() * sizeof(vertices[0]));
+    else
+        ib.AddData(&vertices[firstComponentVertex], numVertexFloats * sizeof(float));
+
 }
 
 //Array-vertex model - much worse

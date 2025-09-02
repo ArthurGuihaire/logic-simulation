@@ -1,5 +1,5 @@
 #include <utils.hpp>
-std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize) {
+/*std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize) {
     bool freeMemoryExists = false;
     uint32_t firstFreeRegionIndex;
     for (std::pair<uint32_t, uint32_t>& freeMemory : freeMemoryMap) {
@@ -17,4 +17,10 @@ std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, ui
         }
     }
     return std::make_pair(freeMemoryExists, firstFreeRegionIndex);
+}*/
+
+unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
+    const unsigned int higherValue = input + cutoff - 1;
+    const unsigned int bitmask = ~cutoff;
+    return (higherValue & bitmask);
 }

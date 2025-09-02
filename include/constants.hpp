@@ -16,4 +16,7 @@ constexpr float textureVertices[4][2] = {
 };
 constexpr glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr float sensitivity = 0.5f;
+
+constexpr unsigned int gpuBufferMultiple = 1024;
+
 #endif

@@ -7,8 +7,6 @@ enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
 struct Component {
     bool active;
     LogicType type;
-    std::vector<std::pair<uint32_t, uint32_t>>* firstIndexPtr;
-    uint32_t firstIndex;
     bool evaluate(bool a, bool b) {
         switch (type) {
             case LogicType::TRAN: return a;
