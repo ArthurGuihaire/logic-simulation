@@ -3,7 +3,7 @@
 #include <utils.hpp>
 
 VertexBuffer::VertexBuffer(const void* data, const unsigned int sizeBytes) {
-    bufferSize = roundUpUInt(sizeBytes, gpuBufferMultiple);
+    bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     usedMemory = sizeBytes;
     glGenBuffers(1, &m_RendererID);
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
@@ -45,7 +45,7 @@ void VertexBuffer::RemoveData(const unsigned int sizeBytes) {
 }
 
 void VertexBuffer::UploadBuffer(const void* data, const unsigned int sizeBytes) {
-    bufferSize = roundUpUInt(sizeBytes, gpuBufferMultiple);
+    bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     usedMemory = sizeBytes;
     glBufferData(GL_ARRAY_BUFFER, bufferSize, nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeBytes, data);

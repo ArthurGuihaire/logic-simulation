@@ -43,23 +43,3 @@ void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats,
         ib.AddData(&vertices[firstComponentVertex], numVertexFloats * sizeof(float));
 
 }
-
-//Array-vertex model - much worse
-/*void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats, LogicType logicType) {
-    //See if vertex array has unused memory
-    std::pair<bool, uint32_t> freeMemoryVertex;
-    if (maybeFreeVertices) {
-        freeMemoryVertex = getFreeMemoryRegion(freeVectorMemory[shaderType::Default], numVertexFloats);
-        if (freeVectorMemory->empty())
-            maybeFreeVertices = false;
-    }
-    
-    //See if index array has unused memory
-    const uint32_t numVertices = numVertexFloats / 3;
-    std::pair<bool, uint32_t> freeMemoryIndex;
-    if (maybeFreeIndices) {
-        freeMemoryIndex = getFreeMemoryRegion(freeIndexMemory[shaderType::Default], numVertices);
-        if (freeIndexMemory->empty())
-            maybeFreeIndices = false;
-    }
-}*/

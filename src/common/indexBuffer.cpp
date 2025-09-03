@@ -3,7 +3,7 @@
 #include <utils.hpp>
 
 IndexBuffer::IndexBuffer(const void* data, const unsigned int sizeBytes) {
-    bufferSize = roundUpUInt(sizeBytes, gpuBufferMultiple);
+    bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     usedMemory = sizeBytes;
     glGenBuffers(1, &m_RendererID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
@@ -45,7 +45,7 @@ void IndexBuffer::RemoveData(const unsigned int sizeBytes) {
 }
 
 void IndexBuffer::UploadBuffer(const void* data, const unsigned int sizeBytes) {
-    bufferSize = roundUpUInt(sizeBytes, gpuBufferMultiple);
+    bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     usedMemory = sizeBytes;
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeBytes, data);

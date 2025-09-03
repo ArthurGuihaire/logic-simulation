@@ -1,11 +1,11 @@
 #ifndef VERTEX_BUFFER
 #define VERTEX_BUFFER
-const static inline unsigned int gpuBufferMultiple = 1024;
 class VertexBuffer {
     private:
         unsigned int m_RendererID;
         unsigned int bufferSize;
         unsigned int usedMemory;
+        constexpr static inline unsigned int gpuBufferMultiple = 1024;
     public:
         VertexBuffer(const void* data, const unsigned int sizeBytes);
         VertexBuffer();

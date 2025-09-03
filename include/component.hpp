@@ -1,7 +1,5 @@
 #ifndef COMPONENT
 #define COMPONENT
-#include <vector>
-#include <utility>
 enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
 
 struct Component {

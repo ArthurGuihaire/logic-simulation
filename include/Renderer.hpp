@@ -11,8 +11,6 @@ class Renderer {
     private:
         std::vector<float> verticesPerShader[5];
         std::vector<uint32_t> indicesPerShader[5];
-        bool maybeFreeVertices = false;
-        bool maybeFreeIndices = false;
         std::vector<Component> components;
         VertexBuffer vertexBufferPerShader[5];
         IndexBuffer indexBufferPerShader[5];

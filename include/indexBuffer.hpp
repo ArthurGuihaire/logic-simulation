@@ -1,11 +1,11 @@
 #ifndef INDEX_BUFFER
 #define INDEX_BUFFER
-const static inline unsigned int gpuBufferMultiple = 1024;
 class IndexBuffer {
     private:
         unsigned int m_RendererID;
         unsigned int bufferSize;
         unsigned int usedMemory;
+        constexpr static inline unsigned int gpuBufferMultiple = 1024;
     public:
         IndexBuffer(const void* data, const unsigned int sizeBytes);
         IndexBuffer();
