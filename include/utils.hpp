@@ -8,4 +8,12 @@ integerType roundUpInt(const integerType input, const uint32_t cutoff) {
     const unsigned int bitmask = ~cutoff;
     return (higherValue & bitmask);
 }
+
+// cutoff must be a power of 2
+unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
+    const unsigned int higherValue = input + cutoff - 1;
+    const unsigned int bitmask = ~(cutoff - 1);
+    return (higherValue & bitmask);
+}
+
 #endif

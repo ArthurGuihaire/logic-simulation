@@ -42,4 +42,7 @@ void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats,
     else
         ib.AddData(&vertices[firstComponentVertex], numVertexFloats * sizeof(float));
 
+    //New component
+    //NOTE: reference must be updated when component switches shader, points to index array for specific shader
+    components.push_back(Component{false, logicType, indices, firstComponentIndex, vertexCount});
 }
