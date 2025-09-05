@@ -1,14 +1,16 @@
 #ifndef COMPONENT
 #define COMPONENT
+#include "shaderType.hpp"
 #include <vector>
 enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
 
 struct Component {
     bool active;
     LogicType type;
-    std::vector<uint32_t>& indicesReference;
+    std::vector<uint32_t>* indicesPointer;
     uint32_t firstIndex;
     uint32_t numIndices;
+    shaderType shaderID;
     bool evaluate(bool a, bool b) {
         switch (type) {
             case LogicType::TRAN: return a;

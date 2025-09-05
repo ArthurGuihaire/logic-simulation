@@ -31,8 +31,8 @@ unsigned int IndexBuffer::getBufferSize() {
     return bufferSize;
 }
 
-void IndexBuffer::UpdateData(const unsigned int offset, const void* data, const unsigned int sizeBytes) const {
-    glBufferSubData(m_RendererID, offset, sizeBytes, data);
+void IndexBuffer::UpdateData(const unsigned int offsetBytes, const void* data, const unsigned int sizeBytes) const {
+    glBufferSubData(m_RendererID, offsetBytes, sizeBytes, data);
 }
 
 void IndexBuffer::AddData(const void* data, const unsigned int sizeBytes) {
