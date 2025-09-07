@@ -1,6 +1,5 @@
 #include "utils.hpp"
 #include <component.hpp>
-#include <Renderer.hpp>
 #include <shaderType.hpp>
 #include <cstring> //For std::memcpy
 #include <utils.h>
@@ -148,6 +147,5 @@ void Renderer::removeComponent(uint32_t componentIndex) {
         DrawElementsIndirectCommand newCommand {oldCount - removedComponent.firstIndex - removedComponent.numIndices, 1, removedComponent.firstIndex + removedComponent.numIndices, 0, 0};
 
         multiDrawCommands[removedComponent.shaderID].push_back(newCommand);
-        
     }
 }
