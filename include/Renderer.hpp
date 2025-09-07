@@ -18,9 +18,12 @@ struct DrawElementsIndirectCommand {
 class Renderer {
     private:
         std::vector<float> vertices;
+        bool indicesAreFragmented;
+        bool indicesFreeMemoryMaybe;
         std::vector<uint32_t> indicesPerShader[5];
+        std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[5];
         std::vector<Component> components;
-        std::vector<DrawElementsIndirectCommand> multiDrawCommands;
+        std::vector<DrawElementsIndirectCommand> multiDrawCommands[5];
         VertexBuffer vertexBuffer;
         IndexBuffer indexBufferPerShader[5];
     public:
