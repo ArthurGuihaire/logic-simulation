@@ -3,8 +3,7 @@
 #include "shaderType.hpp"
 #include <vector>
 #include <openglPCH.hpp>
-#include <vertexBuffer.hpp>
-#include <indexBuffer.hpp>
+#include <gpuBuffer.hpp>
 
 enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
 
@@ -46,8 +45,8 @@ class Renderer {
         std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[5];
         std::vector<Component> components;
         std::vector<DrawElementsIndirectCommand> multiDrawCommands[5];
-        VertexBuffer vertexBuffer;
-        IndexBuffer indexBufferPerShader[5];
+        gpuBuffer vertexBuffer;
+        gpuBuffer indexBufferPerShader[5];
     public:
         Renderer();
         void addComponent(float vertices[], uint32_t numVertices, LogicType logic);

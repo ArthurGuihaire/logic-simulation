@@ -1,11 +1,12 @@
+#include "gpuBuffer.hpp"
 #include "utils.hpp"
 #include <component.hpp>
 #include <shaderType.hpp>
 #include <cstring> //For std::memcpy
-#include <utils.h>
+#include <strings.h>
 
 Renderer::Renderer() 
- : indicesAreFragmented(false), indicesFreeMemoryMaybe(false)
+ : indicesAreFragmented(false), indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER), indexBufferPerShader { {GL_ELEMENT_ARRAY_BUFFER}, {GL_ELEMENT_ARRAY_BUFFER}, {GL_ELEMENT_ARRAY_BUFFER}, {GL_ELEMENT_ARRAY_BUFFER}, {GL_ELEMENT_ARRAY_BUFFER} }
 {
     DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
     for (int i = 0; i < 5; i++) {
@@ -91,7 +92,7 @@ void Renderer::addComponent(float componentVertices[], uint32_t numVertexFloats,
     else
         vertexBuffer.AddData(&vertices[firstComponentVertex], numVertexFloats * sizeof(float)); //Upload only vertices to be added
 
-    IndexBuffer& ib = indexBufferPerShader[shaderType::Ethereal];
+    gpuBuffer& ib = indexBufferPerShader[shaderType::Ethereal];
     if (ib.getBufferSize() < ib.getUsedMemorySize() + numVertexFloats * sizeof(float))
         ib.UploadBuffer(&vertices[0], vertices.size() * sizeof(vertices[0]));
     else
@@ -132,8 +133,8 @@ void Renderer::removeComponent(uint32_t componentIndex) {
         std::pair freeMemoryPair(removedComponent.firstIndex, removedComponent.numIndices);
         freeIndicesPerShader[removedComponent.shaderID].push_back(freeMemoryPair);
         //Then we need to split the draw command that includes that component in 2
-        DrawElementsIndirectCommand* oldCommandPtr;
-        for (DrawElementsIndirectCommand command : multiDrawCommands[removedComponent.shaderID]) {
+        DrawElementsIndirectCommand* oldCommandPtr = nullptr;
+        for (DrawElementsIndirectCommand& command : multiDrawCommands[removedComponent.shaderID]) {
             if (command.firstIndex <= removedComponent.firstIndex && command.firstIndex + command.count >= removedComponent.firstIndex + removedComponent.numIndices) {
                 oldCommandPtr = &command;
                 break;

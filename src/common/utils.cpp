@@ -30,3 +30,9 @@ std::pair<bool, uint32_t> getFreeMemoryRegionExact(std::vector<std::pair<uint32_
     }
     return std::make_pair(false, 0);
 }
+
+unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
+    const unsigned int higherValue = input + cutoff - 1;
+    const unsigned int bitmask = ~(cutoff - 1);
+    return (higherValue & bitmask);
+}
