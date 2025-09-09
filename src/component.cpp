@@ -57,7 +57,7 @@ void ComponentSystem::addComponent(float* componentVertices, uint32_t numVertexF
         std::memcpy(&indices[firstComponentIndex], &indicesToBeAdded[0], sizeof(indicesToBeAdded));
         //We need to update the command to include the new indices
         DrawElementsIndirectCommand* oldCommandPtr = findLastCommand(multiDrawCommands[shaderType::Ethereal], firstComponentIndex);
-        (*oldCommandPtr).count += vertexCount;
+        oldCommandPtr->count += vertexCount;
     }
     else {
         firstComponentIndex = freeMemoryRegion.second;
@@ -67,7 +67,7 @@ void ComponentSystem::addComponent(float* componentVertices, uint32_t numVertexF
         //Now we need to merge the draw commands
         std::pair edgeCommands = findEdgeCommands(drawCommands, freeMemoryRegion.second, vertexCount);
 
-        (*edgeCommands.first).count += (*edgeCommands.second).count + vertexCount; //Expand the first command over the memory region
+        edgeCommands.first->count += edgeCommands.second->count + vertexCount; //Expand the first command over the memory region
         //Delete the second command
         if (drawCommands.size() < 3) //Its the last element, we can safely delete
             drawCommands.pop_back();
@@ -108,6 +108,8 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
     //Easy case first: Are we removing the last element
     if (componentIndex == components.size() - 1) {
         //Since the component is at the end we simply resize the index array to exclude it
+        DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[shaderType::Ethereal], indices.size());
+        command->count -= removedComponent.numIndices;
         indices.resize(indices.size() - removedComponent.numIndices);
         indexBufferPerShader[removedComponent.shaderID].RemoveData(removedComponent.numIndices * sizeof(uint32_t));
         components.pop_back(); //Also delete the component itself
@@ -124,7 +126,7 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
         components.pop_back(); //Delete after copying
         //Find correct command to resize
         DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
-        (*command).count -= movedComponent.numIndices;
+        command->count -= movedComponent.numIndices;
     }
 
     else {
@@ -136,8 +138,8 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
         DrawElementsIndirectCommand* oldCommandPtr = findContainingCommand(multiDrawCommands[removedComponent.shaderID], removedComponent.firstIndex, removedComponent.numIndices);
 
         //First command can overwrite the one we found, second one will be appended
-        uint32_t oldCount = (*oldCommandPtr).count; //Store, needed for second command
-        (*oldCommandPtr).count = removedComponent.firstIndex - (*oldCommandPtr).firstIndex; //Simply change the count, location is fine
+        uint32_t oldCount = oldCommandPtr->count; //Store, needed for second command
+        oldCommandPtr->count = removedComponent.firstIndex - oldCommandPtr->firstIndex; //Simply change the count, location is fine
         //second command: count needs to be the old count minus this components end (so it is everything after). Location is the index right after the removed component
         DrawElementsIndirectCommand newCommand {oldCount - removedComponent.firstIndex - removedComponent.numIndices, 1, removedComponent.firstIndex + removedComponent.numIndices, 0, 0};
 

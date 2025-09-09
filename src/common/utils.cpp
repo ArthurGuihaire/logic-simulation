@@ -50,9 +50,9 @@ bool almostEqual(float a, float b) {
     return aBytes == bBytes;
 }
 
-DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t firstIndex) {
+DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t commandEnd) {
     for (DrawElementsIndirectCommand& command : commands) {
-        if (command.firstIndex + command.count == firstIndex)
+        if (command.firstIndex + command.count == commandEnd)
             return &command;
     }
     return nullptr;
