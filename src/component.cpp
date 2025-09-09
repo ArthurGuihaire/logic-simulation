@@ -117,16 +117,18 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
     else if (components.back().numIndices == removedComponent.numIndices) { 
         //If the last component is the same size, we can simply overwrite and resize
         Component& movedComponent = components.back();
+
+        //Find correct command to resize before memory shenanigans
+        DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
+        command->count -= movedComponent.numIndices;
         //Pass in the data to the new location before freeing the memory
         indexBufferPerShader[removedComponent.shaderID].UpdateData(removedComponent.firstIndex * sizeof(uint32_t), &((*movedComponent.indicesPointer)[movedComponent.firstIndex]), movedComponent.numIndices * sizeof(uint32_t));
         indexBufferPerShader[removedComponent.shaderID].RemoveData(removedComponent.numIndices * sizeof(uint32_t)); //Then free GPU memory
         std::memcpy(&(indices[removedComponent.firstIndex]), &(indices[movedComponent.firstIndex]), removedComponent.numIndices * sizeof(uint32_t)); //Copy indices
+        movedComponent.firstIndex = removedComponent.firstIndex; //Update so it matches the copied memory
         indices.resize(indices.size() - removedComponent.numIndices); // Delete old indices
         components[componentIndex] = components.back(); //Overwite
         components.pop_back(); //Delete after copying
-        //Find correct command to resize
-        DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
-        command->count -= movedComponent.numIndices;
     }
 
     else {

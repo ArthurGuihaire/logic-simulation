@@ -42,4 +42,5 @@ int main() {
     components.removeComponent(1);
     components.addComponent(&vertices15[0], 15, LogicType::NOT);
     components.removeComponent(0);
+    std::cout << "gdb breakpoint" << std::endl;
 }
