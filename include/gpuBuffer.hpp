@@ -1,10 +1,11 @@
-#ifndef VERTEX_BUFFER
-#define VERTEX_BUFFER
+#ifndef GPU_BUFFER
+#define GPU_BUFFER
 
 class gpuBuffer {
     public:
         gpuBuffer(const void* data, const unsigned int sizeBytes, const unsigned int bufferType);
         gpuBuffer(const unsigned int bufferType);
+        gpuBuffer();
         ~gpuBuffer();
         unsigned int getUsedMemorySize();
         unsigned int getBufferSize();

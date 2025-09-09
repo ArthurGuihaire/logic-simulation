@@ -1,6 +1,6 @@
 #ifndef COMPONENT
 #define COMPONENT
-#include "shaderType.hpp"
+#include <shaderType.hpp>
 #include <vector>
 #include <openglPCH.hpp>
 #include <gpuBuffer.hpp>
@@ -27,7 +27,6 @@ struct Component {
     }
 };
 
-
 struct DrawElementsIndirectCommand {
     GLuint count;
     GLuint instanceCount;
@@ -36,10 +35,13 @@ struct DrawElementsIndirectCommand {
     GLuint baseInstance;
 };
 
-class Renderer {
+class ComponentSystem {
+    public:
+        ComponentSystem();
+        void addComponent(float* vertices, uint32_t numVertices, LogicType logic);
+        void removeComponent(uint32_t componentIndex);
     private:
         std::vector<float> vertices;
-        bool indicesAreFragmented;
         bool indicesFreeMemoryMaybe;
         std::vector<uint32_t> indicesPerShader[5];
         std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[5];
@@ -47,10 +49,6 @@ class Renderer {
         std::vector<DrawElementsIndirectCommand> multiDrawCommands[5];
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[5];
-    public:
-        Renderer();
-        void addComponent(float vertices[], uint32_t numVertices, LogicType logic);
-        void removeComponent(uint32_t componentIndex);
 };
 
 #endif

@@ -1,4 +1,7 @@
+#include "component.hpp"
 #include <utils.hpp>
+#include <cstring> //For std::memcpy
+
 std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize) {
     bool freeMemoryExists = false;
     uint32_t firstFreeRegionIndex;
@@ -35,4 +38,50 @@ unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
     const unsigned int higherValue = input + cutoff - 1;
     const unsigned int bitmask = ~(cutoff - 1);
     return (higherValue & bitmask);
+}
+
+constexpr uint32_t floatBitmask = 0xFF;
+bool almostEqual(float a, float b) {
+    uint32_t aBytes, bBytes;
+    std::memcpy(&aBytes, &a, sizeof(float));
+    std::memcpy(&bBytes, &b, sizeof(float));
+    aBytes |= floatBitmask;
+    bBytes |= floatBitmask;
+    return aBytes == bBytes;
+}
+
+DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t firstIndex) {
+    for (DrawElementsIndirectCommand& command : commands) {
+        if (command.firstIndex + command.count == firstIndex)
+            return &command;
+    }
+    return nullptr;
+}
+
+DrawElementsIndirectCommand* findContainingCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t firstIndex, uint32_t numIndices) {
+    for (DrawElementsIndirectCommand& command : commands) {
+        if (command.firstIndex <= firstIndex && command.firstIndex + command.count >= firstIndex + numIndices) {
+            return &command;
+        }
+    }
+    return nullptr;
+}
+
+std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCommands(std::vector<DrawElementsIndirectCommand>& commands, uint32_t edgeLocation, uint32_t edgeSize) {
+    DrawElementsIndirectCommand* firstCommand;
+    DrawElementsIndirectCommand* secondCommand;
+    bool temp = false;
+    for (DrawElementsIndirectCommand& command : commands) {
+        if (command.firstIndex + command.count == edgeLocation) {
+            firstCommand = &command;
+            if (temp) break;
+            else temp = true;
+        }
+        else if (command.firstIndex == edgeLocation  + edgeSize) {
+            secondCommand = &command;
+            if (temp) break;
+            else temp = true;
+        }
+    }
+    return std::make_pair(firstCommand, secondCommand);
 }

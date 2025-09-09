@@ -20,6 +20,14 @@ gpuBuffer::gpuBuffer(const unsigned int bufferType)
     glBufferData(m_bufferType, gpuBufferMultiple, nullptr, GL_STATIC_DRAW);
 }
 
+gpuBuffer::gpuBuffer()
+ : m_bufferSize(1024), m_usedMemory(0), m_bufferType(GL_ELEMENT_ARRAY_BUFFER)
+{
+    glGenBuffers(1, &m_RendererID);
+    glBindBuffer(m_bufferType, m_RendererID);
+    glBufferData(m_bufferType, gpuBufferMultiple, nullptr, GL_STATIC_DRAW);
+}
+
 gpuBuffer::~gpuBuffer() {
     glDeleteBuffers(1, &m_RendererID);
 }

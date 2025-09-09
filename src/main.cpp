@@ -53,7 +53,7 @@ void cursor_position_callback(GLFWwindow* window, double x_position, double y_po
         TexturedObject::updateMouse(x_position, y_position);
 }
 
-int main() {
+int Notmain() {
     Initializer init = Initializer();
     init.setWindowSize(windowWidth, windowHeight);
     init.initGLFW();
