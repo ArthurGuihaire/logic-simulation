@@ -7,7 +7,7 @@ ComponentSystem::ComponentSystem()
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
     DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
-    for (int i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < numShaders; i++) {
         multiDrawCommands[i].push_back(defaultCommand);
     }
 }

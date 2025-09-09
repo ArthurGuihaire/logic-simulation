@@ -38,9 +38,8 @@ int main() {
     components.addComponent(&vertices12[0], 12, LogicType::XOR);
     components.addComponent(&rearranged[0], 12, LogicType::TRAN);
     components.removeComponent(0);
-    components.addComponent(&vertices15[0], 15, LogicType::NOT);
-    components.removeComponent(1);
-    components.addComponent(&vertices15[0], 15, LogicType::NOT);
     components.removeComponent(0);
+    components.addComponent(&rearranged[0], 12, LogicType::OR);
+    components.addComponent(&vertices12[0], 12, LogicType::NAND);
     std::cout << "gdb breakpoint" << std::endl;
 }

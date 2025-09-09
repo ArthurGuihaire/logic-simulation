@@ -1,6 +1,5 @@
 #include <GLFW/glfw3.h>
 #include <openglPCH.hpp>
-#include <textureRenderer.hpp>
 #include <initializer.hpp>
 #include <constants.hpp>
 #include <textureLoader.hpp>
@@ -11,7 +10,7 @@ GLFWcursor* arrowCursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    TexturedObject::updateProjection(width, height);
+    //UpdateProjection width height
 }
 
 void keypress_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -24,7 +23,7 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         else {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             mouseIsLocked = true;
-            TexturedObject::doUpdateMouse = false;
+            //doUpdateMouse = false;
         }
     }
 }
@@ -45,12 +44,12 @@ void processInput(GLFWwindow *window) {
         movement.y += movementSpeed;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
         movement.y -= movementSpeed;
-    TexturedObject::moveCamera(movement);
+    //move camera
 }
 
 void cursor_position_callback(GLFWwindow* window, double x_position, double y_position) {
-    if (mouseIsLocked)
-        TexturedObject::updateMouse(x_position, y_position);
+    if (mouseIsLocked) {}
+        //Update mouse
 }
 
 int Notmain() {
@@ -77,7 +76,6 @@ int Notmain() {
     std::cout << glGetString(GL_VERSION) << "\n";
 
     //Init texture object
-    TexturedObject::init(windowWidth, windowHeight);
     float vertices[12] = {
         -0.5f, 0.5f, 0.0f,
         0.5f, 0.5f, 0.0f,
@@ -86,7 +84,6 @@ int Notmain() {
     };
 
     unsigned int tuxTextureId = loadTexture("textures/linux_penguin.jpg");
-    TexturedObject test(vertices, tuxTextureId);
 
     std::cout << "Created texture object" << std::endl;
 
@@ -95,8 +92,6 @@ int Notmain() {
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        test.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
