@@ -7,8 +7,12 @@ ComponentSystem::ComponentSystem()
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
     DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
+    glGenVertexArrays(numShaders, &vertexArrayObject[0]);
     for (uint32_t i = 0; i < numShaders; i++) {
         multiDrawCommands[i].push_back(defaultCommand);
+        glBindVertexArray(vertexArrayObject[i]);
+        indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        commandsBufferPerShader[i].createBuffer(GL_DRAW_INDIRECT_BUFFER, &multiDrawCommands[i][0], sizeof(DrawElementsIndirectCommand));
     }
 }
 
@@ -83,16 +87,16 @@ void ComponentSystem::addComponent(float* componentVertices, uint32_t numVertexF
     //Update the buffers GPU-side
     if (numVerticesAdded != 0) {
         if (vertexBuffer.getBufferSize() < vertexBuffer.getUsedMemorySize() + numVerticesAdded * 3 * sizeof(float)) //Need a larger buffer, upload everything
-            vertexBuffer.UploadBuffer(&vertices[0], vertices.size() * sizeof(vertices[0]));
+            vertexBuffer.uploadBuffer(&vertices[0], vertices.size() * sizeof(vertices[0]));
         else
-            vertexBuffer.AddData(&vertices[firstComponentVertex], numVerticesAdded * 3 * sizeof(float)); //Upload only vertices to be added
+            vertexBuffer.addData(&vertices[firstComponentVertex], numVerticesAdded * 3 * sizeof(float)); //Upload only vertices to be added
     }
 
     gpuBuffer& ib = indexBufferPerShader[shaderType::Ethereal];
     if (ib.getBufferSize() < ib.getUsedMemorySize() + numVertexFloats * sizeof(float))
-        ib.UploadBuffer(&indices[0], indices.size() * sizeof(indices[0]));
+        ib.uploadBuffer(&indices[0], indices.size() * sizeof(indices[0]));
     else
-        ib.AddData(&indices[firstComponentIndex], vertexCount * sizeof(uint32_t));
+        ib.addData(&indices[firstComponentIndex], vertexCount * sizeof(uint32_t));
 
     //New component
     //NOTE: reference must be updated when component switches shader, points to index array for specific shader
@@ -111,7 +115,7 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
         DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[shaderType::Ethereal], indices.size());
         command->count -= removedComponent.numIndices;
         indices.resize(indices.size() - removedComponent.numIndices);
-        indexBufferPerShader[removedComponent.shaderID].RemoveData(removedComponent.numIndices * sizeof(uint32_t));
+        indexBufferPerShader[removedComponent.shaderID].removeData(removedComponent.numIndices * sizeof(uint32_t));
         components.pop_back(); //Also delete the component itself
     }
     else if (components.back().numIndices == removedComponent.numIndices) { 
@@ -122,8 +126,8 @@ void ComponentSystem::removeComponent(uint32_t componentIndex) {
         DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
         command->count -= movedComponent.numIndices;
         //Pass in the data to the new location before freeing the memory
-        indexBufferPerShader[removedComponent.shaderID].UpdateData(removedComponent.firstIndex * sizeof(uint32_t), &((*movedComponent.indicesPointer)[movedComponent.firstIndex]), movedComponent.numIndices * sizeof(uint32_t));
-        indexBufferPerShader[removedComponent.shaderID].RemoveData(removedComponent.numIndices * sizeof(uint32_t)); //Then free GPU memory
+        indexBufferPerShader[removedComponent.shaderID].updateData(removedComponent.firstIndex * sizeof(uint32_t), &((*movedComponent.indicesPointer)[movedComponent.firstIndex]), movedComponent.numIndices * sizeof(uint32_t));
+        indexBufferPerShader[removedComponent.shaderID].removeData(removedComponent.numIndices * sizeof(uint32_t)); //Then free GPU memory
         std::memcpy(&(indices[removedComponent.firstIndex]), &(indices[movedComponent.firstIndex]), removedComponent.numIndices * sizeof(uint32_t)); //Copy indices
         movedComponent.firstIndex = removedComponent.firstIndex; //Update so it matches the copied memory
         indices.resize(indices.size() - removedComponent.numIndices); // Delete old indices

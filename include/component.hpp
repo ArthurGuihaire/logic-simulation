@@ -51,6 +51,7 @@ class ComponentSystem {
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[numShaders];
         gpuBuffer commandsBufferPerShader[numShaders];
+        unsigned int vertexArrayObject[numShaders];
 };
 
 #endif

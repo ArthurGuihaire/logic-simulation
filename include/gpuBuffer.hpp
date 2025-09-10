@@ -7,19 +7,21 @@ class gpuBuffer {
         gpuBuffer(const unsigned int bufferType);
         gpuBuffer();
         ~gpuBuffer();
+        void createBuffer(const unsigned int bufferType);
+        void createBuffer(const unsigned int bufferType, const void* data, const unsigned int sizeBytes);
         unsigned int getUsedMemorySize();
         unsigned int getBufferSize();
-        void UpdateData(const unsigned int offset, const void* data, const unsigned int sizeBytes) const;
-        void AddData(const void* data, const unsigned int sizeBytes);
-        void RemoveData(const unsigned int sizeBytes);
-        void UploadBuffer(const void* data, const unsigned int sizeBytes);
-        void Bind() const;
-        void Unbind() const;
+        void updateData(const unsigned int offset, const void* data, const unsigned int sizeBytes) const;
+        void addData(const void* data, const unsigned int sizeBytes);
+        void removeData(const unsigned int sizeBytes);
+        void uploadBuffer(const void* data, const unsigned int sizeBytes);
+        void bind() const;
+        void unbind() const;
     private:
         constexpr static inline unsigned int gpuBufferMultiple = 1024;
         unsigned int m_RendererID;
         unsigned int m_bufferSize;
         unsigned int m_usedMemory;
-        const unsigned int m_bufferType;
+        unsigned int m_bufferType;
 };
 #endif

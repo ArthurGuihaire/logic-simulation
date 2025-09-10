@@ -1,5 +1,6 @@
 #include <component.hpp>
 #include <initializer.hpp>
+#include <chrono>
 
 int main() {
     Initializer init;
@@ -37,9 +38,23 @@ int main() {
 
     components.addComponent(&vertices12[0], 12, LogicType::XOR);
     components.addComponent(&rearranged[0], 12, LogicType::TRAN);
-    components.removeComponent(0);
-    components.removeComponent(0);
-    components.addComponent(&rearranged[0], 12, LogicType::OR);
-    components.addComponent(&vertices12[0], 12, LogicType::NAND);
-    std::cout << "gdb breakpoint" << std::endl;
+    for (uint32_t i = 0; i < 10000; i++) {
+        components.addComponent(&rearranged[0], 12, LogicType::OR);
+        components.addComponent(&vertices12[0], 12, LogicType::NAND);
+    }
+    auto start = std::chrono::system_clock::now();
+    for (uint32_t i = 0; i < 1000000; i++) {
+        components.addComponent(&rearranged[1], 12, LogicType::OR);
+        components.addComponent(&vertices12[0], 12, LogicType::NAND);
+        components.removeComponent(5);
+        components.removeComponent(0);
+    }
+
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s"
+              << std::endl;
 }
