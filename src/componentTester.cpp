@@ -44,10 +44,10 @@ int main() {
     }
     auto start = std::chrono::system_clock::now();
     for (uint32_t i = 0; i < 1000000; i++) {
-        components.addComponent(&rearranged[1], 12, LogicType::OR);
+        components.addComponent(&rearranged[0], 12, LogicType::OR);
         components.addComponent(&vertices12[0], 12, LogicType::NAND);
-        components.removeComponent(5);
-        components.removeComponent(0);
+        components.removeComponent(components.components[5]);
+        components.removeComponent(components.components[3]);
     }
 
     auto end = std::chrono::system_clock::now();

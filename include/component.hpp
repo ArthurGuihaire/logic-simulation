@@ -39,14 +39,15 @@ class ComponentSystem {
     public:
         ComponentSystem();
         void addComponent(float* vertices, uint32_t numVertices, LogicType logic);
-        void removeComponent(uint32_t componentIndex);
+        void removeComponent(Component& removedComponent);
+        void moveComponent(Component& movedComponent, shaderType newShader);
+        std::vector<Component> components;
     private:
         constexpr static inline unsigned int numShaders = 5;
         std::vector<float> vertices;
         bool indicesFreeMemoryMaybe;
         std::vector<uint32_t> indicesPerShader[numShaders];
         std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[numShaders];
-        std::vector<Component> components;
         std::vector<DrawElementsIndirectCommand> multiDrawCommands[numShaders];
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[numShaders];

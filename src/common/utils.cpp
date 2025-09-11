@@ -41,13 +41,24 @@ unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
 }
 
 constexpr uint32_t floatBitmask = 0xFF;
-bool almostEqual(float a, float b) {
+bool almostEqualFast(float a, float b) {
     uint32_t aBytes, bBytes;
     std::memcpy(&aBytes, &a, sizeof(float));
     std::memcpy(&bBytes, &b, sizeof(float));
     aBytes |= floatBitmask;
     bBytes |= floatBitmask;
     return aBytes == bBytes;
+}
+
+bool almostEqual(float a, float b) {
+    int32_t ia, ib;
+    std::memcpy(&ia, &a, sizeof(float));
+    std::memcpy(&ib, &b, sizeof(float));
+
+    if (ia < 0) ia = 0x80000000 - ia;
+    if (ib < 0) ib = 0x80000000 - ib;
+
+    return std::abs(ia - ib) <= 8;
 }
 
 DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t commandEnd) {
