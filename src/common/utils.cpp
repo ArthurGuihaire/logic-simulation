@@ -1,5 +1,6 @@
 #include "component.hpp"
 #include <utils.hpp>
+#include <arrayUtils.hpp>
 #include <cstring> //For std::memcpy
 
 std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize) {
@@ -96,3 +97,4 @@ std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCo
     }
     return std::make_pair(firstCommand, secondCommand);
 }
+

@@ -18,6 +18,7 @@ cmake_policy(SET CMP0072 NEW)  # Prefer modern OpenGL behavior
 # Define source and include directories
 set(SOURCE_DIR  "${CMAKE_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+set(INCLUDE_COMMON "${CMAKE_SOURCE_DIR}/include/common")
 
 # Find required packages
 find_package(OpenGL REQUIRED)
@@ -29,7 +30,7 @@ file(GLOB COMMON_CPP "${SOURCE_DIR}/common/*.cpp")
 
 # Create a static library for glad.c (C-only)
 add_library(glad STATIC "${SOURCE_DIR}/common/glad.c")
-target_include_directories(glad PUBLIC ${INCLUDE_DIR})
+target_include_directories(glad PUBLIC ${INCLUDE_DIR} ${INCLUDE_COMMON})
 
 # Create the executable with only C++ files
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${COMMON_CPP})

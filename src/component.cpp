@@ -1,8 +1,9 @@
-#include "gpuBuffer.hpp"
-#include "shaderType.hpp"
+#include <gpuBuffer.hpp>
+#include <shaderType.hpp>
 #include <utils.hpp>
 #include <component.hpp>
 #include <cstring> //For std::memcpy
+#include <arrayUtils.hpp>
 
 ComponentSystem::ComponentSystem() 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
@@ -175,6 +176,3 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
     }
 }
 
-void ComponentSystem::moveComponent(Component& movedComponent, shaderType newShader) {
-    
-}
