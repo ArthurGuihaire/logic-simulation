@@ -5,6 +5,11 @@
 #include <cstring> //For std::memcpy
 #include <arrayUtils.hpp>
 
+/*
+ * Tiny optimization:
+ * Have a single vector for components and don't copy components on moveComponents instead just copy the indices and update the correct component
+*/
+
 ComponentSystem::ComponentSystem() 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
@@ -130,11 +135,10 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
     //Get a reference to the component. index is passed in because we need the index to remove the component itself.
     std::vector<uint32_t>& indices = *(removedComponent.indicesPointer);
     std::vector<Component>& components = componentsPerShader[removedComponent.shaderID];
-    const uint32_t componentIndex = &removedComponent - &components[0];
 
     //Removing unused vertices is O(n^2) so we don't do it everytime we remove an element
     //Easy case first: Are we removing the last element
-    if (componentIndex == components.size() - 1) {
+    if (removedComponent.firstIndex + removedComponent.numIndices == indices.size()) {
         //Since the component is at the end we simply resize the index array to exclude it
         DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[removedComponent.shaderID], indices.size());
         command->count -= removedComponent.numIndices;
@@ -143,7 +147,6 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
         
         indices.resize(indices.size() - removedComponent.numIndices);
         indexBufferPerShader[removedComponent.shaderID].removeData(removedComponent.numIndices * sizeof(uint32_t));
-        components.pop_back(); //Also delete the component itself
     }
     else if (components.back().numIndices == removedComponent.numIndices) { 
         //If the last component is the same size, we can simply overwrite and resize
@@ -161,9 +164,6 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
         std::memcpy(&(indices[removedComponent.firstIndex]), &(indices[movedComponent.firstIndex]), removedComponent.numIndices * sizeof(uint32_t)); //Copy indices
         movedComponent.firstIndex = removedComponent.firstIndex; //Update so it matches the copied memory
         indices.resize(indices.size() - removedComponent.numIndices); // Delete old indices
-
-        components[componentIndex] = components.back(); //Overwite
-        components.pop_back(); //Delete after copying
     }
 
     else {
@@ -189,8 +189,14 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
             commandBuffer.uploadBuffer(&multiDrawCommands[removedComponent.shaderID], multiDrawCommands[removedComponent.shaderID].size() * sizeof(DrawElementsIndirectCommand));
         else
             commandBuffer.addData(&newCommand, sizeof(DrawElementsIndirectCommand));
+    }
 
-        //Then delete the component itself
+    const uint32_t componentIndex = &removedComponent - &components[0];
+    if (componentIndex == components.size())
+        components.pop_back();
+    else {
+        components[componentIndex] = components.back();
+        components.pop_back();
     }
 }
 
