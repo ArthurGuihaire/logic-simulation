@@ -38,10 +38,11 @@ struct DrawElementsIndirectCommand {
 class ComponentSystem {
     public:
         ComponentSystem();
-        void addComponent(float* vertices, uint32_t numVertices, LogicType logic);
+        void createComponent(float* vertices, uint32_t numVertices, LogicType logic);
+        uint32_t addComponent(uint32_t* newIndices, uint32_t numIndices, shaderType shaderID);
         void removeComponent(Component& removedComponent);
         void moveComponent(Component& movedComponent, shaderType newShader);
-        std::vector<Component> components;
+        std::vector<Component> componentsPerShader[5];
     private:
         constexpr static inline unsigned int numShaders = 5;
         std::vector<float> vertices;

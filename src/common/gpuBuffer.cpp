@@ -52,8 +52,8 @@ unsigned int gpuBuffer::getBufferSize() {
     return m_bufferSize;
 }
 
-void gpuBuffer::updateData(const unsigned int offset, const void* data, const unsigned int sizeBytes) const {
-    glBufferSubData(m_RendererID, offset, sizeBytes, data);
+void gpuBuffer::updateData(const unsigned int offsetBytes, const void* data, const unsigned int sizeBytes) const {
+    glBufferSubData(m_RendererID, offsetBytes, sizeBytes, data);
 }
 
 void gpuBuffer::addData(const void* data, const unsigned int sizeBytes) {

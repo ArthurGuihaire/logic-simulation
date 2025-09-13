@@ -1,3 +1,4 @@
+#include "shaderType.hpp"
 #include <component.hpp>
 #include <initializer.hpp>
 #include <chrono>
@@ -36,19 +37,13 @@ int main() {
         -1.0f, 1.0f, 0.0f
     };
 
-    components.addComponent(&vertices12[0], 12, LogicType::XOR);
-    components.addComponent(&rearranged[0], 12, LogicType::TRAN);
-    for (uint32_t i = 0; i < 10000; i++) {
-        components.addComponent(&rearranged[0], 12, LogicType::OR);
-        components.addComponent(&vertices12[0], 12, LogicType::NAND);
-    }
     auto start = std::chrono::system_clock::now();
-    for (uint32_t i = 0; i < 1000000; i++) {
-        components.addComponent(&rearranged[0], 12, LogicType::OR);
-        components.addComponent(&vertices12[0], 12, LogicType::NAND);
-        components.removeComponent(components.components[5]);
-        components.removeComponent(components.components[3]);
-    }
+    components.createComponent(&vertices12[0], 12, LogicType::XOR);
+    components.createComponent(&vertices15[0], 15, LogicType::TRAN);
+    components.removeComponent(components.componentsPerShader[shaderType::Ethereal][0]);
+    components.createComponent(&vertices15[0], 15, LogicType::OR);
+    components.createComponent(&rearranged[0], 12, LogicType::NOR);
+    components.moveComponent(components.componentsPerShader[shaderType::Ethereal][1], shaderType::Default);
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
