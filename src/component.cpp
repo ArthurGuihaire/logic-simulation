@@ -202,8 +202,12 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
 
 void ComponentSystem::moveComponent(Component& component, shaderType newShader) {
     //STEP 1: add the component to the new list
-    addComponent(&(*(component.indicesPointer))[component.firstIndex], component.numIndices, newShader);
+    const uint32_t firstComponentIndex = addComponent(&(*(component.indicesPointer))[component.firstIndex], component.numIndices, newShader);
     componentsPerShader[newShader].push_back(component);
     //STEP 2: remove the component from the old list
     removeComponent(component);
+    //old reference is invalid (overwritten in removeComponent) so new reference:
+    Component& newComponent = componentsPerShader[newShader].back();
+    newComponent.indicesPointer = &indicesPerShader[newShader];
+    newComponent.firstIndex = firstComponentIndex;
 }
