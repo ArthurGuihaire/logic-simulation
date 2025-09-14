@@ -1,3 +1,5 @@
+#include "component.hpp"
+#include "componentStructs.hpp"
 #include <gpuBuffer.hpp>
 #include <shaderType.hpp>
 #include <utils.hpp>
@@ -22,10 +24,11 @@ ComponentSystem::ComponentSystem(Renderer& renderer)
         indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
         commandsBufferPerShader[i].createBuffer(GL_DRAW_INDIRECT_BUFFER, &multiDrawCommands[i][0], sizeof(DrawElementsIndirectCommand));
     }
-    renderer.init(&vertexArrayObject[0], &commandsBufferPerShader[0]);
+    vertexBuffer.bind();
+    renderer.init(&vertexArrayObject[0], &commandsBufferPerShader[0], &componentsPerShader[0]);
 }
 
-void ComponentSystem::createComponent(float* componentVertices, uint32_t numVertexFloats, LogicType logicType) { //Pass array by pointer
+void ComponentSystem::createComponent(const float* componentVertices, const uint32_t numVertexFloats, const LogicType logicType) { //Pass array by pointer
     std::vector<uint32_t>& indices = indicesPerShader[shaderType::Ethereal];
     //Get size variables that are needed later
     const uint32_t vertexCount = numVertexFloats / 3;
@@ -71,7 +74,7 @@ void ComponentSystem::createComponent(float* componentVertices, uint32_t numVert
     componentsPerShader[shaderType::Ethereal].push_back({false, logicType, &indices, firstComponentIndex, vertexCount, shaderType::Ethereal});
 }
 
-uint32_t ComponentSystem::addComponent(uint32_t* newIndices, uint32_t numIndices, shaderType shaderID) {
+uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numIndices, shaderType shaderID) {
     std::vector<uint32_t>& indices = indicesPerShader[shaderID];
     bool needMoreMemory = true;
     std::pair<bool, unsigned int> freeMemoryRegion;
@@ -212,4 +215,9 @@ void ComponentSystem::moveComponent(Component& component, shaderType newShader) 
     Component& newComponent = componentsPerShader[newShader].back();
     newComponent.indicesPointer = &indicesPerShader[newShader];
     newComponent.firstIndex = firstComponentIndex;
+}
+
+void ComponentSystem::printIndirectDraw(uint32_t shaderID, uint32_t index) const {
+    const DrawElementsIndirectCommand& command = multiDrawCommands[shaderID][index];
+    std::cout << "count: " << command.count << "\nFirst index: " << command.firstIndex << "\ninstance count: " << command.instanceCount << "\nbase instance: " << command.baseInstance << "\nbase vertex: " << command.baseVertex << std::endl;
 }

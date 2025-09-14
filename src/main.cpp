@@ -25,24 +25,36 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Enable OpenGL depth testing
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*) {
+        if (severity == GL_DEBUG_SEVERITY_HIGH) fprintf(stderr, "GL ERROR: %s\n", msg);
+    }, nullptr);
+
 
     //Print driver info
     std::cout << glGetString(GL_RENDERER) << "\n";
     std::cout << glGetString(GL_VERSION) << "\n";
 
-    Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, 0.0f, windowWidth, windowHeight);
+    Camera camera(glm::vec3(-3.0f, 0.0f, 0.0f), 90.0f, 0.0f, windowWidth, windowHeight);
     Renderer renderer(camera);
     ComponentSystem componentSystem(renderer);
 
-    /* Rendering loop
+    componentSystem.createComponent(&Geometry::cubeVertices[0], sizeof(Geometry::cubeVertices) / sizeof(float), LogicType::AND);
+
+    float i = 0.0f;
     while (!glfwWindowShouldClose(window)) {
+        i++;
         processInput(window);
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT/* | GL_DEPTH_BUFFER_BIT*/);
+
+        //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
+        camera.moveCamera(glm::vec3(0.0f, 0.0f, 0.0f));
+        renderer.renderFrame();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-    }*/
+    }
 }

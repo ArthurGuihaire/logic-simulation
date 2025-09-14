@@ -11,10 +11,11 @@
 class ComponentSystem {
     public:
         ComponentSystem(Renderer& renderer);
-        void createComponent(float* vertices, uint32_t numVertices, LogicType logic);
-        uint32_t addComponent(uint32_t* newIndices, uint32_t numIndices, shaderType shaderID);
+        void createComponent(const float* vertices, const uint32_t numVertices, const LogicType logic);
+        uint32_t addComponent(const uint32_t* newIndices, uint32_t numIndices, shaderType shaderID);
         void removeComponent(Component& removedComponent);
         void moveComponent(Component& movedComponent, shaderType newShader);
+        void printIndirectDraw(uint32_t shaderID, uint32_t index) const;
         std::vector<Component> componentsPerShader[5];
     private:
         std::vector<float> vertices;

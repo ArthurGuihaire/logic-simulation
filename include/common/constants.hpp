@@ -17,7 +17,7 @@ constexpr inline float textureVertices[4][2] = {
 constexpr inline glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr float sensitivity = 0.5f;
 
-constexpr unsigned int gpuBufferMultiple = 4196;
+constexpr unsigned int gpuBufferMultiple = 4096;
 constexpr unsigned int numShaders = 5;
 
 namespace Colors {
@@ -26,6 +26,70 @@ namespace Colors {
     constexpr inline glm::vec4 green {0.0f, 1.0f, 0.0f, 1.0f};
     constexpr inline glm::vec4 transparentGreen {0.0f, 1.0f, 0.0f, 0.5f};
     constexpr inline glm::vec4 blue {0.0f, 0.0f, 1.0f, 1.0f};
+}
+
+namespace Geometry {
+    constexpr inline float triangle[] = {
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f, 
+        0.0f, 1.0f, 0.0f, 
+    };
+    constexpr inline float cubeVertices[] = {
+        // Front face (z = 1)
+        -1.0f, -1.0f,  1.0f,
+        1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+
+        // Back face (z = -1)
+        1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
+
+        // Left face (x = -1)
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        // Right face (x = 1)
+        1.0f, -1.0f,  1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
+
+        1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+        1.0f,  1.0f,  1.0f,
+
+        // Top face (y = 1)
+        -1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+
+        -1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        // Bottom face (y = -1)
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f
+    };
+
 }
 
 #endif

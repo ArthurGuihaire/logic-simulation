@@ -98,3 +98,9 @@ std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCo
     return std::make_pair(firstCommand, secondCommand);
 }
 
+void printOpenGLErrors(const char* printString) {
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        printf("%s: 0x%x\n", printString, err);
+    }
+}

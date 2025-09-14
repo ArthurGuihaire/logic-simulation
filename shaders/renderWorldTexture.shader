@@ -3,13 +3,11 @@
 
 layout(location=0) in vec3 position;
 
-uniform mat4 model;
 uniform mat4 projectionView;
 
-out vec2 texCoords;
-
 void main() {
-    gl_Position = projectionView * model * vec4(position, 1.0f);
+    gl_Position = projectionView * vec4(position, 1.0f);
+    //gl_Position = vec4(position, 1.0f);
 }
 
 #shader fragment
@@ -20,5 +18,5 @@ uniform vec4 color;
 out vec4 fragColor;
 
 void main() {
-    fragColor = outputColor;
+    fragColor = color;
 }

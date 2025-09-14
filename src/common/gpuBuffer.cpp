@@ -41,6 +41,7 @@ void gpuBuffer::createBuffer(const unsigned int bufferType, const void* data, co
     m_bufferType = bufferType;
     m_bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     m_usedMemory = sizeBytes;
+    glBindBuffer(m_bufferType, m_RendererID);
     glBufferData(m_bufferType, m_bufferSize, nullptr, GL_STATIC_DRAW);
     glBufferSubData(m_bufferType, 0, sizeBytes, data);
 }
@@ -54,12 +55,14 @@ unsigned int gpuBuffer::getBufferSize() {
 }
 
 void gpuBuffer::updateData(const unsigned int offsetBytes, const void* data, const unsigned int sizeBytes) const {
-    glBufferSubData(m_RendererID, offsetBytes, sizeBytes, data);
+    glBindBuffer(m_bufferType, m_RendererID);
+    glBufferSubData(m_bufferType, offsetBytes, sizeBytes, data);
 }
 
 void gpuBuffer::addData(const void* data, const unsigned int sizeBytes) {
+    glBindBuffer(m_bufferType, m_RendererID);
+    glBufferSubData(m_bufferType, m_usedMemory, sizeBytes, data);
     m_usedMemory += sizeBytes;
-    glBufferSubData(m_RendererID, m_usedMemory, sizeBytes, data);
 }
 
 void gpuBuffer::removeData(const unsigned int sizeBytes) {
@@ -69,6 +72,7 @@ void gpuBuffer::removeData(const unsigned int sizeBytes) {
 void gpuBuffer::uploadBuffer(const void* data, const unsigned int sizeBytes) {
     m_bufferSize = roundUpInt(sizeBytes, gpuBufferMultiple);
     m_usedMemory = sizeBytes;
+    glBindBuffer(m_bufferType, m_RendererID);
     glBufferData(m_bufferType, m_bufferSize, nullptr, GL_STATIC_DRAW);
     glBufferSubData(m_bufferType, 0, sizeBytes, data);
 }
