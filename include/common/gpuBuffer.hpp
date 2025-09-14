@@ -18,7 +18,6 @@ class gpuBuffer {
         void bind() const;
         void unbind() const;
     private:
-        constexpr static inline unsigned int gpuBufferMultiple = 4096;
         unsigned int m_RendererID;
         unsigned int m_bufferSize;
         unsigned int m_usedMemory;

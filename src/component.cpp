@@ -1,19 +1,20 @@
 #include <gpuBuffer.hpp>
 #include <shaderType.hpp>
 #include <utils.hpp>
-#include <component.hpp>
 #include <cstring> //For std::memcpy
 #include <arrayUtils.hpp>
+#include <constants.hpp>
 
 /*
  * Tiny optimization:
  * Have a single vector for components and don't copy components on moveComponents instead just copy the indices and update the correct component
 */
 
-ComponentSystem::ComponentSystem() 
+ComponentSystem::ComponentSystem(Renderer& renderer) 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
     DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
+    uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
     for (uint32_t i = 0; i < numShaders; i++) {
         multiDrawCommands[i].push_back(defaultCommand);
@@ -21,6 +22,7 @@ ComponentSystem::ComponentSystem()
         indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
         commandsBufferPerShader[i].createBuffer(GL_DRAW_INDIRECT_BUFFER, &multiDrawCommands[i][0], sizeof(DrawElementsIndirectCommand));
     }
+    renderer.init(&vertexArrayObject[0], &commandsBufferPerShader[0]);
 }
 
 void ComponentSystem::createComponent(float* componentVertices, uint32_t numVertexFloats, LogicType logicType) { //Pass array by pointer

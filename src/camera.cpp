@@ -56,3 +56,7 @@ void Camera::updateMouse(const float mouseX, const float mouseY) {
         doUpdateMouse = true;
     }
 }
+
+glm::mat4 Camera::getViewProjection() {
+    return (view * projection);
+}

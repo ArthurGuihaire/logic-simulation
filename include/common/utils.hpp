@@ -1,7 +1,6 @@
 #ifndef UTILS
 #define UTILS
-#include <vector>
-#include <component.hpp>
+#include <componentStructs.hpp>
 
 template <typename integerType>
 integerType roundUpInt(const integerType input, const uint32_t cutoff) {
