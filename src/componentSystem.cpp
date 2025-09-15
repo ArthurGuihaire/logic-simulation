@@ -1,4 +1,3 @@
-#include "component.hpp"
 #include "componentStructs.hpp"
 #include <gpuBuffer.hpp>
 #include <shaderType.hpp>
@@ -75,6 +74,7 @@ void ComponentSystem::createComponent(const float* componentVertices, const uint
 }
 
 uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numIndices, shaderType shaderID) {
+    std::cout << "Add component" << std::endl << std::flush;
     std::vector<uint32_t>& indices = indicesPerShader[shaderID];
     bool needMoreMemory = true;
     std::pair<bool, unsigned int> freeMemoryRegion;

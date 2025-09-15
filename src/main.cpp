@@ -3,10 +3,8 @@
 #include <initializer.hpp>
 #include <constants.hpp>
 #include <textureLoader.hpp>
-#include <component.hpp>
+#include <componentSystem.hpp>
 #include <inputMethods.hpp>
-
- // Set cursor to system cursor theme, broken on wayland
 
 int main() {
     Initializer init = Initializer();
@@ -25,12 +23,12 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Enable OpenGL depth testing
-    //glEnable(GL_DEPTH_TEST);
-    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEPTH_TEST);
+    //Debug output
+    /*glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*) {
         if (severity == GL_DEBUG_SEVERITY_HIGH) fprintf(stderr, "GL ERROR: %s\n", msg);
-    }, nullptr);
-
+    }, nullptr);*/
 
     //Print driver info
     std::cout << glGetString(GL_RENDERER) << "\n";
@@ -40,21 +38,29 @@ int main() {
     Renderer renderer(camera);
     ComponentSystem componentSystem(renderer);
 
+    userPointers callbackUtils = {camera, componentSystem};
+
+    glfwSetWindowUserPointer(window, &callbackUtils); //Make camera accessible inside callback functions
+
     componentSystem.createComponent(&Geometry::cubeVertices[0], sizeof(Geometry::cubeVertices) / sizeof(float), LogicType::AND);
 
-    float i = 0.0f;
     while (!glfwWindowShouldClose(window)) {
-        i++;
+        std::cout << "Still running 1" << std::endl;
         processInput(window);
+        std::cout << "Still running 2" << std::endl;
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT/* | GL_DEPTH_BUFFER_BIT*/);
+        std::cout << "Still running 3" << std::endl;
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        std::cout << "Still running 4" << std::endl;
 
         //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
-        camera.moveCamera(glm::vec3(0.0f, 0.0f, 0.0f));
         renderer.renderFrame();
+        std::cout << "Still running 5" << std::endl;
 
         glfwSwapBuffers(window);
+        std::cout << "Still running 6" << std::endl;
         glfwPollEvents();
+        std::cout << "Still running 7" << std::endl;
     }
 }

@@ -1,15 +1,23 @@
+#include <cstring> // For std::memcpy
+#include <GLFW/glfw3.h>
+#include <constants.hpp>
 #include <inputMethods.hpp>
+#include <camera.hpp> //need camera API
+#include <keyBindings.hpp>
 
 bool mouseIsLocked = true;
 GLFWcursor* arrowCursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    //UpdateProjection width height
+    Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
+    camera.updateProjection(windowWidth, windowHeight);
 }
 
 void keypress_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+    Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
+    if (key == Key::toggleMouse && action == GLFW_PRESS) {
+        camera.doUpdateMouse = !camera.doUpdateMouse;
         if (mouseIsLocked) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             glfwSetCursor(window, arrowCursor);
@@ -18,8 +26,34 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         else {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             mouseIsLocked = true;
-            //doUpdateMouse = false;
         }
+    }
+    if (key == Key::placeBlock && action == GLFW_PRESS) {
+        ComponentSystem& system = static_cast<userPointers*>(glfwGetWindowUserPointer(window))->componentSystem;
+
+        glm::vec3 camPosition = camera.getPosition() + 3.0f * camera.getViewDirection();
+        glm::mat4 transform = glm::translate(identity_mat4, camPosition);
+
+        constexpr size_t vertexCount = sizeof(Geometry::cubeVertices) / (3 * sizeof(float));
+        float vertices[vertexCount * 3];
+
+        for (uint32_t i = 0; i < vertexCount * 3; i += 3) {
+            glm::vec4 transformed = transform * glm::vec4(
+                Geometry::cubeVertices[i + 0],
+                Geometry::cubeVertices[i + 1],
+                Geometry::cubeVertices[i + 2],
+                1.0f
+            );
+
+            vertices[i + 0] = transformed.x;
+            vertices[i + 1] = transformed.y;
+            vertices[i + 2] = transformed.z;
+
+            std::cout << transformed.x << ", " << transformed.y << ", " << transformed.z << std::endl;
+        }
+
+        system.createComponent(&vertices[0], 36*3, LogicType::AND);
+        std::cout << "Created component maybe" << std::endl;
     }
 }
 
@@ -27,22 +61,24 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     glm::vec3 movement = glm::vec3(0.0f, 0.0f, 0.0f);
-    if (glfwGetKey(window, GLFW_KEY_W))
+    if (glfwGetKey(window, Key::forward))
         movement.z += movementSpeed;
-    if (glfwGetKey(window, GLFW_KEY_S))
+    if (glfwGetKey(window, Key::backward))
         movement.z -= movementSpeed;
-    if (glfwGetKey(window, GLFW_KEY_A))
+    if (glfwGetKey(window, Key::left))
         movement.x -= movementSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D))
+    if (glfwGetKey(window, Key::right))
         movement.x += movementSpeed;
-    if (glfwGetKey(window, GLFW_KEY_SPACE))
+    if (glfwGetKey(window, Key::up))
         movement.y += movementSpeed;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
+    if (glfwGetKey(window, Key::down))
         movement.y -= movementSpeed;
-    //move camera
+    Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
+    camera.moveCamera(movement);
 }
 
 void cursor_position_callback(GLFWwindow* window, double x_position, double y_position) {
     if (mouseIsLocked) {}
-        //Update mouse
+        Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
+        camera.updateMouse(x_position, y_position);
 }

@@ -1,3 +1,10 @@
+#include <componentSystem.hpp>
+#include <camera.hpp>
+struct userPointers {
+    Camera& camera;
+    ComponentSystem& componentSystem;
+};
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void keypress_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);

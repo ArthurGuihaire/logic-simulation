@@ -31,6 +31,7 @@ ShaderProgramSource parseShader(const std::string& filepath) {
                 ss[(int) type] << line << "\n";
         }
     }
+    std::cout << "Successfully loaded " << filepath << std::endl;
     return { ss[0].str(), ss[1].str() };
 }
 

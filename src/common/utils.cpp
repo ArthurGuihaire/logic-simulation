@@ -1,4 +1,3 @@
-#include "component.hpp"
 #include <utils.hpp>
 #include <arrayUtils.hpp>
 #include <cstring> //For std::memcpy

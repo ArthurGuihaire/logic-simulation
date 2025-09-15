@@ -9,6 +9,8 @@ class Camera {
         void moveCamera(const glm::vec3 relativeMovement);
         void updateMouse(const float mouseX, const float mouseY);
         glm::mat4 getViewProjection();
+        glm::vec3& getPosition();
+        glm::vec3& getViewDirection();
     private:
         glm::vec3 cameraPosition;
         glm::vec3 cameraAngle;

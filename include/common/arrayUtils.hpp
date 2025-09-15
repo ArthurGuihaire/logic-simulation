@@ -1,7 +1,7 @@
 #ifndef ARRAY_UTILS
 #define ARRAY_UTILS
 #include <vector>
-#include <component.hpp>
+#include <componentSystem.hpp>
 
 std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize);
 std::pair<bool, uint32_t> getFreeMemoryRegionExact(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize);
