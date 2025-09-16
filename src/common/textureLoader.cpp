@@ -9,7 +9,7 @@ GLuint loadTexture(const char* path) {
         return 0;
     }
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "[ERROR] GLAD not initialized!" << std::endl;
         return 0;
     }

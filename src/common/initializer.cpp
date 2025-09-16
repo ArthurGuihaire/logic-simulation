@@ -1,6 +1,6 @@
 #include <initializer.hpp>
 #include <iostream>
-#include "glad.h"
+#include <gl.h>
 
 Initializer::Initializer() {}
 
@@ -31,7 +31,7 @@ GLFWwindow* Initializer::createWindow() {
 }
 
 void Initializer::initGLAD() {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (!gladLoadGL(glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return;

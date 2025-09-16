@@ -48,8 +48,6 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
             vertices[i + 0] = transformed.x;
             vertices[i + 1] = transformed.y;
             vertices[i + 2] = transformed.z;
-
-            std::cout << transformed.x << ", " << transformed.y << ", " << transformed.z << std::endl;
         }
 
         system.createComponent(&vertices[0], 36*3, LogicType::AND);

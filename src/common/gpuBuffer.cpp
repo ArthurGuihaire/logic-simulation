@@ -1,5 +1,5 @@
 #include <gpuBuffer.hpp>
-#include <glad.h>
+#include <gl.h>
 #include <utils.hpp>
 #include <constants.hpp>
 

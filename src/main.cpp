@@ -1,3 +1,4 @@
+#include "utils.hpp"
 #include <GLFW/glfw3.h>
 #include <openglPCH.hpp>
 #include <initializer.hpp>
@@ -10,7 +11,9 @@ int main() {
     Initializer init = Initializer();
     init.setWindowSize(windowWidth, windowHeight);
     init.initGLFW();
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     auto window = init.createWindow();
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     init.initGLAD();
     glViewport(0, 0, windowWidth, windowHeight);
 
@@ -25,10 +28,12 @@ int main() {
     //Enable OpenGL depth testing
     glEnable(GL_DEPTH_TEST);
     //Debug output
+    glfwSetErrorCallback(glfwErrorCallback);
     /*glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* msg, const void*) {
-        if (severity == GL_DEBUG_SEVERITY_HIGH) fprintf(stderr, "GL ERROR: %s\n", msg);
-    }, nullptr);*/
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    std::cout << "before callback" << std::endl;
+    glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) { std::cerr << "[GL DEBUG] " <<  message << std::endl; }, nullptr);
+    std::cout << "after callback" << std::endl;*/
 
     //Print driver info
     std::cout << glGetString(GL_RENDERER) << "\n";
@@ -45,22 +50,15 @@ int main() {
     componentSystem.createComponent(&Geometry::cubeVertices[0], sizeof(Geometry::cubeVertices) / sizeof(float), LogicType::AND);
 
     while (!glfwWindowShouldClose(window)) {
-        std::cout << "Still running 1" << std::endl;
         processInput(window);
-        std::cout << "Still running 2" << std::endl;
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        std::cout << "Still running 3" << std::endl;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        std::cout << "Still running 4" << std::endl;
-
+        
         //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
         renderer.renderFrame();
-        std::cout << "Still running 5" << std::endl;
 
         glfwSwapBuffers(window);
-        std::cout << "Still running 6" << std::endl;
         glfwPollEvents();
-        std::cout << "Still running 7" << std::endl;
     }
-}
+}   

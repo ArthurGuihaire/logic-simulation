@@ -1,5 +1,5 @@
 #include <shaderLoader.hpp>
-#include <glad.h>
+#include <gl.h>
 #include <fstream>
 #include <iostream>
 

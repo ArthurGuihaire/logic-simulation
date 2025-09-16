@@ -24,12 +24,12 @@ set(INCLUDE_COMMON "${CMAKE_SOURCE_DIR}/include/common")
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-# Gather C++ source files (excluding glad.c)
+# Gather C++ source files (excluding gl.c)
 file(GLOB SRC_FILES "${SOURCE_DIR}/*.cpp")
 file(GLOB COMMON_CPP "${SOURCE_DIR}/common/*.cpp")
 
-# Create a static library for glad.c (C-only)
-add_library(glad STATIC "${SOURCE_DIR}/common/glad.c")
+# Create a static library for gl.c (C-only)
+add_library(glad STATIC "${SOURCE_DIR}/common/gl.c")
 target_include_directories(glad PUBLIC ${INCLUDE_DIR} ${INCLUDE_COMMON})
 
 # Create the executable with only C++ files

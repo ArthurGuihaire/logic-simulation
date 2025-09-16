@@ -10,6 +10,7 @@ class Renderer {
         Renderer(Camera& cameraReference);
         void init(uint32_t* vao, gpuBuffer* bufferPointer, std::vector<Component>* components);
         void renderFrame();
+        void renderFrameIntelGPU();
     private:
         uint32_t vao[numShaders];
         uint32_t shaderProgram;

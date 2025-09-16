@@ -1,6 +1,7 @@
 #include "componentStructs.hpp"
 #include <gpuBuffer.hpp>
 #include <shaderType.hpp>
+#include <sys/types.h>
 #include <utils.hpp>
 #include <cstring> //For std::memcpy
 #include <arrayUtils.hpp>
@@ -14,7 +15,7 @@
 ComponentSystem::ComponentSystem(Renderer& renderer) 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
-    DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
+    DrawElementsIndirectCommand defaultCommand {0, 0, 0, 0, 0};
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
     for (uint32_t i = 0; i < numShaders; i++) {
@@ -74,7 +75,6 @@ void ComponentSystem::createComponent(const float* componentVertices, const uint
 }
 
 uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numIndices, shaderType shaderID) {
-    std::cout << "Add component" << std::endl << std::flush;
     std::vector<uint32_t>& indices = indicesPerShader[shaderID];
     bool needMoreMemory = true;
     std::pair<bool, unsigned int> freeMemoryRegion;
@@ -219,5 +219,5 @@ void ComponentSystem::moveComponent(Component& component, shaderType newShader) 
 
 void ComponentSystem::printIndirectDraw(uint32_t shaderID, uint32_t index) const {
     const DrawElementsIndirectCommand& command = multiDrawCommands[shaderID][index];
-    std::cout << "count: " << command.count << "\nFirst index: " << command.firstIndex << "\ninstance count: " << command.instanceCount << "\nbase instance: " << command.baseInstance << "\nbase vertex: " << command.baseVertex << std::endl;
+    std::cout << "Indirect draw command attributes:\ncount: " << command.count << "\nFirst index: " << command.firstIndex << "\ninstance count: " << command.instanceCount << "\nbase instance: " << command.baseInstance << "\nbase vertex: " << command.baseVertex << std::endl;
 }

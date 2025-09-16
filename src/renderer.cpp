@@ -1,4 +1,5 @@
 #include "componentStructs.hpp"
+#include "gl.h"
 #include "utils.hpp"
 #include <renderer.hpp>
 #include <shaderLoader.hpp>
@@ -42,8 +43,38 @@ void Renderer::renderFrame() {
             glUniform4fv(uniformLocationColor, 1, glm::value_ptr(Colors::blue));
 
             glUniformMatrix4fv(uniformLocationProjectionView, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
+            glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, componentsPerShader[shaderGroup].size(), 0);
+            
+            printOpenGLErrors("OpenGL Error");
+        }
+    }
+}
 
-            glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*)0, componentsPerShader[shaderGroup].size(), 0);
+void Renderer::renderFrameIntelGPU() {
+    for (uint32_t shaderGroup = 0; shaderGroup < numShaders; shaderGroup++) {
+        size_t numComponents = componentsPerShader[shaderGroup].size();
+        if (numComponents > 0) {
+            glBindVertexArray(vao[shaderGroup]);
+            commandBufferArrayPointer[shaderGroup].bind(); // still binds index buffer
+            glUseProgram(shaderProgram);
+
+            glUniform4fv(uniformLocationColor, 1, glm::value_ptr(Colors::blue));
+            glUniformMatrix4fv(
+                uniformLocationProjectionView,
+                1,
+                GL_FALSE,
+                &camera.getViewProjection()[0][0]
+            );
+
+            // 36 indices per component
+            GLsizei indexCount = static_cast<GLsizei>(numComponents * 36);
+
+            glDrawElements(
+                GL_TRIANGLES,
+                indexCount,
+                GL_UNSIGNED_INT,
+                nullptr // start at beginning of bound index buffer
+            );
 
             printOpenGLErrors("OpenGL Error");
         }

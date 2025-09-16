@@ -103,3 +103,103 @@ void printOpenGLErrors(const char* printString) {
         printf("%s: 0x%x\n", printString, err);
     }
 }
+
+void validateDrawSetup(GLsizei drawCount, GLsizei stride, GLenum indexType) {
+    // --- 1. Indirect command buffer ---
+    GLint64 indirectSize = 0;
+    glGetBufferParameteri64v(GL_DRAW_INDIRECT_BUFFER, GL_BUFFER_SIZE, &indirectSize);
+    if (indirectSize < drawCount * (stride ? stride : sizeof(DrawElementsIndirectCommand))) {
+        std::cerr << "[ERROR] Indirect buffer too small (" << indirectSize << " bytes)" << std::endl;
+    }
+
+    // Map and dump first few commands
+    if (indirectSize > 0) {
+        auto* cmds = (const DrawElementsIndirectCommand*)glMapBufferRange(
+            GL_DRAW_INDIRECT_BUFFER, 0,
+            std::min<GLint64>(indirectSize, 10 * sizeof(DrawElementsIndirectCommand)),
+            GL_MAP_READ_BIT
+        );
+        if (cmds) {
+            for (int i = 0; i < std::min<GLsizei>(drawCount, 10); i++) {
+                std::cout << "Command[" << i << "]: "
+                          << "count=" << cmds[i].count
+                          << " primCount=" << cmds[i].instanceCount
+                          << " firstIndex=" << cmds[i].firstIndex
+                          << " baseVertex=" << cmds[i].baseVertex
+                          << " baseInstance=" << cmds[i].baseInstance
+                          << std::endl;
+            }
+            glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+        }
+    }
+
+    // --- 2. Index buffer ---
+    GLint elementArrayBuffer = 0;
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elementArrayBuffer);
+    if (elementArrayBuffer == 0) {
+        std::cerr << "[ERROR] No index buffer bound!" << std::endl;
+    } else {
+        GLint64 indexBufSize = 0;
+        glGetBufferParameteri64v(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexBufSize);
+        std::cout << "Index buffer size: " << indexBufSize << " bytes" << std::endl;
+
+        GLint bytesPerIndex = (indexType == GL_UNSIGNED_BYTE ? 1 :
+                              (indexType == GL_UNSIGNED_SHORT ? 2 : 4));
+        if (indexBufSize % bytesPerIndex != 0) {
+            std::cerr << "[WARN] Index buffer size not divisible by index type size" << std::endl;
+        }
+    }
+
+    // --- 3. Vertex attrib buffers ---
+    GLint maxAttribs = 0;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttribs);
+    for (GLint i = 0; i < maxAttribs; i++) {
+        GLint enabled = 0;
+        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+        if (!enabled) continue;
+
+        GLint buf = 0;
+        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &buf);
+        GLint size = 0;
+        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
+        GLint strideAttr = 0;
+        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &strideAttr);
+        GLint type = 0;
+        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
+        GLintptr offset = 0;
+        glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, (void**)&offset);
+
+        std::cout << "Attrib " << i << ": buf=" << buf
+                  << " size=" << size
+                  << " stride=" << strideAttr
+                  << " type=0x" << std::hex << type << std::dec
+                  << " offset=" << offset
+                  << std::endl;
+
+        if (buf != 0) {
+            GLint64 bufSize = 0;
+            glBindBuffer(GL_ARRAY_BUFFER, buf);
+            glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufSize);
+            if (bufSize == 0) {
+                std::cerr << "[ERROR] Attribute " << i << " bound to empty buffer" << std::endl;
+            }
+        }
+    }
+}
+
+void glfwErrorCallback(int error, const char* description) {
+    fprintf(stderr, "[GLFW ERROR] code=%d msg=%s\n", error, description);
+}
+
+static bool detectIntelGPU() {
+    const char* vendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
+    if (vendor && std::string(vendor).find("Intel") != std::string::npos) {
+        return true;
+    }
+    if (renderer && std::string(renderer).find("Intel") != std::string::npos) {
+        return true;
+    }
+    return false;
+}
