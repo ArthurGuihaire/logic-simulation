@@ -23,12 +23,4 @@ struct Component {
         }
     }
 };
-
-struct DrawElementsIndirectCommand {
-    GLuint count;
-    GLuint instanceCount;
-    GLuint firstIndex;
-    GLuint baseVertex;
-    GLuint baseInstance;
-};
 #endif

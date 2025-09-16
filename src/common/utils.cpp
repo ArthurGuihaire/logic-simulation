@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <utils.hpp>
 #include <arrayUtils.hpp>
 #include <cstring> //For std::memcpy
@@ -61,24 +62,40 @@ bool almostEqual(float a, float b) {
     return std::abs(ia - ib) <= 8;
 }
 
-DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t commandEnd) {
+/*DrawElementsIndirectCommand* findLastCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t commandEnd) {
     for (DrawElementsIndirectCommand& command : commands) {
         if (command.firstIndex + command.count == commandEnd)
             return &command;
     }
     return nullptr;
+}*/
+
+uint32_t findLastCommand(std::vector<GLsizei> &counts, std::vector<const void *> indices, uint32_t commandEnd) {
+    for (uint32_t i = 0; i < counts.size(); i++) {
+        if ((uintptr_t)indices[i] / 4 + counts[i] == commandEnd)
+        return i;
+    }
+    return -1; // Integer max value
 }
 
-DrawElementsIndirectCommand* findContainingCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t firstIndex, uint32_t numIndices) {
+/*DrawElementsIndirectCommand* findContainingCommand(std::vector<DrawElementsIndirectCommand>& commands, uint32_t firstIndex, uint32_t numIndices) {
     for (DrawElementsIndirectCommand& command : commands) {
         if (command.firstIndex <= firstIndex && command.firstIndex + command.count >= firstIndex + numIndices) {
             return &command;
         }
     }
     return nullptr;
+}*/
+
+uint32_t findContainingCommand(std::vector<GLsizei> &counts, std::vector<const void *> indices, uint32_t firstIndex, uint32_t numIndices) {
+    for (uint32_t i = 0; i < counts.size(); i++) {
+        if ((uintptr_t)indices[i]/4 <= firstIndex && (uintptr_t)indices[i]/4 + counts[i] >= firstIndex + numIndices)
+            return i;
+    }
+    return -1;
 }
 
-std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCommands(std::vector<DrawElementsIndirectCommand>& commands, uint32_t edgeLocation, uint32_t edgeSize) {
+/*std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCommands(std::vector<DrawElementsIndirectCommand>& commands, uint32_t edgeLocation, uint32_t edgeSize) {
     DrawElementsIndirectCommand* firstCommand;
     DrawElementsIndirectCommand* secondCommand;
     bool temp = false;
@@ -95,95 +112,30 @@ std::pair<DrawElementsIndirectCommand*, DrawElementsIndirectCommand*> findEdgeCo
         }
     }
     return std::make_pair(firstCommand, secondCommand);
+}*/
+
+std::pair<uint32_t, uint32_t> findEdgeCommands(std::vector<GLsizei> &counts, std::vector<const void *> indices, uint32_t edgeLocation, uint32_t edgeSize) {
+    uint32_t firstIndex, secondIndex;
+    bool temp = false;
+    for (uint32_t i = 0; i < counts.size(); i++) {
+        if ((uintptr_t)indices[i] / 4 + counts[i] == edgeLocation) {
+            firstIndex = i;
+            if (temp) break;
+            else temp = true;
+        }
+        else if ((uintptr_t)indices[i] / 4 == edgeLocation + edgeSize) {
+            secondIndex = i;
+            if (temp) break;
+            else temp = true;
+        }
+    }
+    return std::make_pair(firstIndex, secondIndex);
 }
 
 void printOpenGLErrors(const char* printString) {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         printf("%s: 0x%x\n", printString, err);
-    }
-}
-
-void validateDrawSetup(GLsizei drawCount, GLsizei stride, GLenum indexType) {
-    // --- 1. Indirect command buffer ---
-    GLint64 indirectSize = 0;
-    glGetBufferParameteri64v(GL_DRAW_INDIRECT_BUFFER, GL_BUFFER_SIZE, &indirectSize);
-    if (indirectSize < drawCount * (stride ? stride : sizeof(DrawElementsIndirectCommand))) {
-        std::cerr << "[ERROR] Indirect buffer too small (" << indirectSize << " bytes)" << std::endl;
-    }
-
-    // Map and dump first few commands
-    if (indirectSize > 0) {
-        auto* cmds = (const DrawElementsIndirectCommand*)glMapBufferRange(
-            GL_DRAW_INDIRECT_BUFFER, 0,
-            std::min<GLint64>(indirectSize, 10 * sizeof(DrawElementsIndirectCommand)),
-            GL_MAP_READ_BIT
-        );
-        if (cmds) {
-            for (int i = 0; i < std::min<GLsizei>(drawCount, 10); i++) {
-                std::cout << "Command[" << i << "]: "
-                          << "count=" << cmds[i].count
-                          << " primCount=" << cmds[i].instanceCount
-                          << " firstIndex=" << cmds[i].firstIndex
-                          << " baseVertex=" << cmds[i].baseVertex
-                          << " baseInstance=" << cmds[i].baseInstance
-                          << std::endl;
-            }
-            glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
-        }
-    }
-
-    // --- 2. Index buffer ---
-    GLint elementArrayBuffer = 0;
-    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elementArrayBuffer);
-    if (elementArrayBuffer == 0) {
-        std::cerr << "[ERROR] No index buffer bound!" << std::endl;
-    } else {
-        GLint64 indexBufSize = 0;
-        glGetBufferParameteri64v(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexBufSize);
-        std::cout << "Index buffer size: " << indexBufSize << " bytes" << std::endl;
-
-        GLint bytesPerIndex = (indexType == GL_UNSIGNED_BYTE ? 1 :
-                              (indexType == GL_UNSIGNED_SHORT ? 2 : 4));
-        if (indexBufSize % bytesPerIndex != 0) {
-            std::cerr << "[WARN] Index buffer size not divisible by index type size" << std::endl;
-        }
-    }
-
-    // --- 3. Vertex attrib buffers ---
-    GLint maxAttribs = 0;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttribs);
-    for (GLint i = 0; i < maxAttribs; i++) {
-        GLint enabled = 0;
-        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
-        if (!enabled) continue;
-
-        GLint buf = 0;
-        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &buf);
-        GLint size = 0;
-        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
-        GLint strideAttr = 0;
-        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &strideAttr);
-        GLint type = 0;
-        glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
-        GLintptr offset = 0;
-        glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, (void**)&offset);
-
-        std::cout << "Attrib " << i << ": buf=" << buf
-                  << " size=" << size
-                  << " stride=" << strideAttr
-                  << " type=0x" << std::hex << type << std::dec
-                  << " offset=" << offset
-                  << std::endl;
-
-        if (buf != 0) {
-            GLint64 bufSize = 0;
-            glBindBuffer(GL_ARRAY_BUFFER, buf);
-            glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufSize);
-            if (bufSize == 0) {
-                std::cerr << "[ERROR] Attribute " << i << " bound to empty buffer" << std::endl;
-            }
-        }
     }
 }
 

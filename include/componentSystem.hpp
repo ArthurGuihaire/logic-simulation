@@ -22,10 +22,10 @@ class ComponentSystem {
         bool indicesFreeMemoryMaybe;
         std::vector<uint32_t> indicesPerShader[numShaders];
         std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[numShaders];
-        std::vector<DrawElementsIndirectCommand> multiDrawCommands[numShaders];
+        std::vector<GLsizei> drawCountArray[numShaders];
+        std::vector<const void*> drawFirstIndexArray[numShaders];
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[numShaders];
-        gpuBuffer commandsBufferPerShader[numShaders];
 };
 
 #endif

@@ -1,4 +1,6 @@
 #include "componentStructs.hpp"
+#include "gl.h"
+#include <cstdint>
 #include <gpuBuffer.hpp>
 #include <shaderType.hpp>
 #include <sys/types.h>
@@ -15,17 +17,16 @@
 ComponentSystem::ComponentSystem(Renderer& renderer) 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
-    DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
     for (uint32_t i = 0; i < numShaders; i++) {
-        multiDrawCommands[i].push_back(defaultCommand);
+        drawCountArray[i].push_back(0);
+        drawFirstIndexArray[i].push_back(0);
         glBindVertexArray(vertexArrayObject[i]);
         indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
-        commandsBufferPerShader[i].createBuffer(GL_DRAW_INDIRECT_BUFFER, &multiDrawCommands[i][0], sizeof(DrawElementsIndirectCommand));
     }
     vertexBuffer.bind();
-    renderer.init(&vertexArrayObject[0], &commandsBufferPerShader[0], &componentsPerShader[0]);
+    renderer.init(&vertexArrayObject[0], &drawCountArray[0], &drawFirstIndexArray[0], &componentsPerShader[0]);
 }
 
 void ComponentSystem::createComponent(const float* componentVertices, const uint32_t numVertexFloats, const LogicType logicType) { //Pass array by pointer
@@ -74,7 +75,7 @@ void ComponentSystem::createComponent(const float* componentVertices, const uint
     componentsPerShader[shaderType::Ethereal].push_back({false, logicType, &indices, firstComponentIndex, vertexCount, shaderType::Ethereal});
 }
 
-uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numIndices, shaderType shaderID) {
+uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numIndices, const shaderType shaderID) {
     std::vector<uint32_t>& indices = indicesPerShader[shaderID];
     bool needMoreMemory = true;
     std::pair<bool, unsigned int> freeMemoryRegion;
@@ -91,40 +92,39 @@ uint32_t ComponentSystem::addComponent(const uint32_t* newIndices, uint32_t numI
         indices.resize(firstComponentIndex + numIndices);
         std::memcpy(&indices[firstComponentIndex], newIndices, numIndices * sizeof(uint32_t));
         //We need to update the command to include the new indices
-        DrawElementsIndirectCommand* oldCommandPtr = findLastCommand(multiDrawCommands[shaderID], firstComponentIndex);
-        oldCommandPtr->count += numIndices;
-        const uint32_t offset = (oldCommandPtr - &multiDrawCommands[shaderID][0]) * sizeof(DrawElementsIndirectCommand);
-        commandsBufferPerShader[shaderID].updateData(offset, oldCommandPtr, sizeof(DrawElementsIndirectCommand));
+        /*DrawElementsCommand* oldCommandPtr = findLastCommand(drawCommands[shaderID], firstComponentIndex);
+        oldCommandPtr->count += numIndices;*/
+        const uint32_t index = findLastCommand(drawCountArray[shaderID], drawFirstIndexArray[shaderID], firstComponentIndex);
+        drawCountArray[shaderID][index] += numIndices;
     }
     else {
         firstComponentIndex = freeMemoryRegion.second;
-        std::vector<DrawElementsIndirectCommand>& drawCommands = multiDrawCommands[shaderID];
-        gpuBuffer& commandBuffer = commandsBufferPerShader[shaderID];
 
         std::memcpy(&indices[freeMemoryRegion.second], newIndices, numIndices * sizeof(uint32_t));
         ib.updateData(freeMemoryRegion.first * sizeof(uint32_t), newIndices, numIndices * sizeof(uint32_t));
         //Now we need to merge the draw commands
-        const std::pair edgeCommands = findEdgeCommands(drawCommands, freeMemoryRegion.second, numIndices);
-
-        edgeCommands.first->count += edgeCommands.second->count + numIndices; //Expand the first command over the memory region
-        uint32_t bufferOffset = (edgeCommands.first - &drawCommands[0]) * sizeof(DrawElementsIndirectCommand);
-        commandBuffer.updateData(bufferOffset, edgeCommands.first, sizeof(DrawElementsIndirectCommand));
+        /*const std::pair edgeCommands = findEdgeCommands(drawCommands[shaderID], freeMemoryRegion.second, numIndices);
+        edgeCommands.first->count += edgeCommands.second->count + numIndices; //Expand the first command over the memory region*/
+        const std::pair edgeCommands = findEdgeCommands(drawCountArray[shaderID], drawFirstIndexArray[shaderID], freeMemoryRegion.second, numIndices * sizeof(uint32_t));
+        drawCountArray[shaderID][edgeCommands.first] += drawCountArray[shaderID][edgeCommands.second] + numIndices;
         
+        std::vector<GLsizei>& counts = drawCountArray[shaderID];
+        std::vector<const void*>& indices = drawFirstIndexArray[shaderID];
         //Delete the second command
-        if (drawCommands.size() < 3) { //Its the last element, we can safely delete
-            drawCommands.pop_back();
-            commandBuffer.removeData(sizeof(DrawElementsIndirectCommand));
+        if (counts.size() < 3) { //Its the last element, we can safely delete
+            counts.pop_back();
+            indices.pop_back();
+            //If there is only one draw command, guaranteed no more free memory
+            if (counts.size() == 1)
+                indicesFreeMemoryMaybe = false;
         }
         else { //Its somewhere in the middle, memcpy the last command over it, then delete the last command
-            std::memcpy(edgeCommands.second, &drawCommands.back(), sizeof(DrawElementsIndirectCommand));
-            drawCommands.pop_back();
-            bufferOffset = (edgeCommands.second - &drawCommands[0]) * sizeof(DrawElementsIndirectCommand);
-            commandBuffer.updateData(bufferOffset, edgeCommands.second, sizeof(DrawElementsIndirectCommand));
-            commandBuffer.removeData(sizeof(DrawElementsIndirectCommand));
+            //std::memcpy(edgeCommands.second, &(drawCommands[shaderID].back()), sizeof(DrawElementsCommand));
+            counts[edgeCommands.second] = counts.back();
+            indices[edgeCommands.second] = indices.back();
+            counts.pop_back();
+            indices.pop_back();
         }
-        //If there is only one draw command, guaranteed no more free memory
-        if (drawCommands.size() == 1)
-            indicesFreeMemoryMaybe = false;
     }
 
     if (needMoreMemory){
@@ -145,10 +145,10 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
     //Easy case first: Are we removing the last element
     if (removedComponent.firstIndex + removedComponent.numIndices == indices.size()) {
         //Since the component is at the end we simply resize the index array to exclude it
-        DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[removedComponent.shaderID], indices.size());
-        command->count -= removedComponent.numIndices;
-        const uint32_t bufferOffset = (command - &multiDrawCommands[removedComponent.shaderID][0]) * sizeof(DrawElementsIndirectCommand);
-        commandsBufferPerShader[removedComponent.shaderID].updateData(bufferOffset, command, sizeof(DrawElementsIndirectCommand));
+        /*DrawElementsCommand* command = findLastCommand(drawCommands[removedComponent.shaderID], indices.size());
+        command->count -= removedComponent.numIndices;*/
+        const uint32_t index = findLastCommand(drawCountArray[removedComponent.shaderID], drawFirstIndexArray[removedComponent.shaderID], indices.size());
+        drawCountArray[removedComponent.shaderID][index] -= removedComponent.numIndices;
         
         indices.resize(indices.size() - removedComponent.numIndices);
         indexBufferPerShader[removedComponent.shaderID].removeData(removedComponent.numIndices * sizeof(uint32_t));
@@ -158,10 +158,10 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
         Component& movedComponent = components.back();
 
         //Find correct command to resize before memory shenanigans
-        DrawElementsIndirectCommand* command = findLastCommand(multiDrawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
-        command->count -= movedComponent.numIndices;
-        const uint32_t bufferOffset = (command - &multiDrawCommands[removedComponent.shaderID][0]) * sizeof(DrawElementsIndirectCommand);
-        commandsBufferPerShader[removedComponent.shaderID].updateData(bufferOffset, command, sizeof(DrawElementsIndirectCommand));
+        /*DrawElementsCommand* command = findLastCommand(drawCommands[movedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
+        command->count -= movedComponent.numIndices;*/
+        const uint32_t index = findLastCommand(drawCountArray[removedComponent.shaderID], drawFirstIndexArray[removedComponent.shaderID], movedComponent.firstIndex + movedComponent.numIndices);
+        drawCountArray[removedComponent.shaderID][index] -= movedComponent.numIndices;
 
         //Pass in the data to the new location before freeing the memory
         indexBufferPerShader[removedComponent.shaderID].updateData(removedComponent.firstIndex * sizeof(uint32_t), &((*movedComponent.indicesPointer)[movedComponent.firstIndex]), movedComponent.numIndices * sizeof(uint32_t));
@@ -178,22 +178,19 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
         freeIndicesPerShader[removedComponent.shaderID].push_back(freeMemoryPair);
 
         //Then we need to split the draw command that includes that component in 2
-        DrawElementsIndirectCommand* oldCommandPtr = findContainingCommand(multiDrawCommands[removedComponent.shaderID], removedComponent.firstIndex, removedComponent.numIndices);
+        /*DrawElementsCommand* oldCommandPtr = findContainingCommand(drawCommands[removedComponent.shaderID], removedComponent.firstIndex, removedComponent.numIndices);*/
+        const uint32_t index = findContainingCommand(drawCountArray[removedComponent.shaderID], drawFirstIndexArray[removedComponent.shaderID], removedComponent.firstIndex, removedComponent.numIndices);
         //First command can overwrite the one we found, second one will be appended
-        const uint32_t oldCount = oldCommandPtr->count; //Store, needed for second command
-        oldCommandPtr->count = removedComponent.firstIndex - oldCommandPtr->firstIndex; //Simply change the count, location is fine
-        const uint32_t bufferOffset = (oldCommandPtr - &multiDrawCommands[removedComponent.shaderID][0]) * sizeof(DrawElementsIndirectCommand);
-        gpuBuffer& commandBuffer = commandsBufferPerShader[removedComponent.shaderID];
-        commandBuffer.updateData(bufferOffset, oldCommandPtr, sizeof(DrawElementsIndirectCommand));
+        /*const uint32_t oldCount = oldCommandPtr->count; //Store, needed for second command
+        oldCommandPtr->count = removedComponent.firstIndex - oldCommandPtr->firstIndex;*/ //Simply change the count, location is fine
+        const uint32_t oldCount = drawCountArray[removedComponent.shaderID][index];
+        drawCountArray[removedComponent.shaderID][index] = removedComponent.firstIndex - drawCountArray[removedComponent.shaderID][index];
 
         //second command: count needs to be the old count minus this components end (so it is everything after). Location is the index right after the removed component
-        DrawElementsIndirectCommand newCommand {oldCount - removedComponent.firstIndex - removedComponent.numIndices, 1, removedComponent.firstIndex + removedComponent.numIndices, 0, 0};
-        multiDrawCommands[removedComponent.shaderID].push_back(newCommand);
-        //Update GPU buffer, since we're adding a command check capacity of the buffer
-        if (commandBuffer.getBufferSize() < commandBuffer.getUsedMemorySize() + sizeof(DrawElementsIndirectCommand))
-            commandBuffer.uploadBuffer(&multiDrawCommands[removedComponent.shaderID], multiDrawCommands[removedComponent.shaderID].size() * sizeof(DrawElementsIndirectCommand));
-        else
-            commandBuffer.addData(&newCommand, sizeof(DrawElementsIndirectCommand));
+        /*DrawElementsCommand newCommand {oldCount - removedComponent.firstIndex - removedComponent.numIndices, removedComponent.firstIndex + removedComponent.numIndices};
+        drawCommands[removedComponent.shaderID].push_back(newCommand);*/
+        drawCountArray[removedComponent.shaderID].push_back(oldCount - removedComponent.firstIndex - removedComponent.numIndices);
+        drawFirstIndexArray[removedComponent.shaderID].push_back((const void*)(uintptr_t)(removedComponent.firstIndex + removedComponent.numIndices));
     }
 
     const uint32_t componentIndex = &removedComponent - &components[0];
@@ -205,7 +202,7 @@ void ComponentSystem::removeComponent(Component& removedComponent) {
     }
 }
 
-void ComponentSystem::moveComponent(Component& component, shaderType newShader) {
+void ComponentSystem::moveComponent(Component& component, const shaderType newShader) {
     //STEP 1: add the component to the new list
     const uint32_t firstComponentIndex = addComponent(&(*(component.indicesPointer))[component.firstIndex], component.numIndices, newShader);
     componentsPerShader[newShader].push_back(component);
@@ -217,7 +214,6 @@ void ComponentSystem::moveComponent(Component& component, shaderType newShader) 
     newComponent.firstIndex = firstComponentIndex;
 }
 
-void ComponentSystem::printIndirectDraw(uint32_t shaderID, uint32_t index) const {
-    const DrawElementsIndirectCommand& command = multiDrawCommands[shaderID][index];
-    std::cout << "Indirect draw command attributes:\ncount: " << command.count << "\nFirst index: " << command.firstIndex << "\ninstance count: " << command.instanceCount << "\nbase instance: " << command.baseInstance << "\nbase vertex: " << command.baseVertex << std::endl;
+void ComponentSystem::printIndirectDraw(const uint32_t shaderID, const uint32_t index) const {
+    std::cout << "indirect draw attribs:\nCount: " << drawCountArray[shaderID][index] << "\nFirst index: " << (uintptr_t)drawFirstIndexArray[shaderID][index] << std::endl;
 }

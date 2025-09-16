@@ -10,7 +10,7 @@
 int main() {
     Initializer init = Initializer();
     init.setWindowSize(windowWidth, windowHeight);
-    init.initGLFW(4, 3);
+    init.initGLFW(3, 3);
     //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     auto window = init.createWindow();
     //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -34,16 +34,6 @@ int main() {
     std::cout << "before callback" << std::endl;
     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) { std::cerr << "[GL DEBUG] " <<  message << std::endl; }, nullptr);
     std::cout << "after callback" << std::endl;*/
-    
-    //Initialize GPU renderFrame
-    //TODO: abstract this to a function
-    void (Renderer::*renderFrame)();
-    if (detectIntelGPU()) {
-        renderFrame = &Renderer::renderFrameIntelGPU;
-    }
-    else {
-        renderFrame = &Renderer::renderFrameGeneric;
-    }
 
     //Print driver info
     std::cout << glGetString(GL_RENDERER) << "\n";
@@ -66,7 +56,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
-        (renderer.*renderFrame)();
+        (renderer.renderFrame)();
         //renderer.renderFrameIntelGPU();
 
         glfwSwapBuffers(window);

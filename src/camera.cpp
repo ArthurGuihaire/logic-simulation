@@ -9,7 +9,7 @@ Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYa
     cameraAngle.z = sin(glm::radians(pitch)) * sin(glm::radians(yaw));
 
     view = glm::lookAt(cameraPosition, cameraPosition + cameraAngle, upVector);
-    projection = glm::perspective(glm::radians(90.0f), (float) windowWidth / (float) windowHeight, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(90.0f), (float) windowWidth / (float) windowHeight, 0.05f, 100.0f);
     //std::cout << cameraAngle.x << ", " << cameraAngle.y << ", " << cameraAngle.z << std::endl;
 }
 
