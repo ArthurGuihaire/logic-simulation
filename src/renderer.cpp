@@ -4,6 +4,7 @@
 #include <renderer.hpp>
 #include <shaderLoader.hpp>
 #include <cstring> //For memcpy
+#include <functional>
 #include <glm/gtc/type_ptr.hpp>
 
 Renderer::Renderer(Camera& cameraReference)
@@ -33,7 +34,7 @@ void Renderer::init(uint32_t* newVao, gpuBuffer* bufferPointer, std::vector<Comp
 
 }
 
-void Renderer::renderFrame() {
+void Renderer::renderFrameGeneric() {
     for (uint32_t shaderGroup = 0; shaderGroup < numShaders; shaderGroup++) {
         if (componentsPerShader[shaderGroup].size() > 0) {
             glBindVertexArray(vao[shaderGroup]);

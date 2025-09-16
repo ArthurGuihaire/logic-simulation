@@ -191,7 +191,7 @@ void glfwErrorCallback(int error, const char* description) {
     fprintf(stderr, "[GLFW ERROR] code=%d msg=%s\n", error, description);
 }
 
-static bool detectIntelGPU() {
+bool detectIntelGPU() {
     const char* vendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
     const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 

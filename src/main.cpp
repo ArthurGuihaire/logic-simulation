@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include <utils.hpp>
 #include <GLFW/glfw3.h>
 #include <openglPCH.hpp>
 #include <initializer.hpp>
@@ -10,10 +10,10 @@
 int main() {
     Initializer init = Initializer();
     init.setWindowSize(windowWidth, windowHeight);
-    init.initGLFW();
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    init.initGLFW(4, 3);
+    //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     auto window = init.createWindow();
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     init.initGLAD();
     glViewport(0, 0, windowWidth, windowHeight);
 
@@ -34,6 +34,16 @@ int main() {
     std::cout << "before callback" << std::endl;
     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) { std::cerr << "[GL DEBUG] " <<  message << std::endl; }, nullptr);
     std::cout << "after callback" << std::endl;*/
+    
+    //Initialize GPU renderFrame
+    //TODO: abstract this to a function
+    void (Renderer::*renderFrame)();
+    if (detectIntelGPU()) {
+        renderFrame = &Renderer::renderFrameIntelGPU;
+    }
+    else {
+        renderFrame = &Renderer::renderFrameGeneric;
+    }
 
     //Print driver info
     std::cout << glGetString(GL_RENDERER) << "\n";
@@ -55,8 +65,9 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
-        renderer.renderFrame();
+        componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
+        (renderer.*renderFrame)();
+        //renderer.renderFrameIntelGPU();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

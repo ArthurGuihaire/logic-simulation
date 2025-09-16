@@ -19,8 +19,8 @@ void printOpenGLErrors(const char* printString);
 
 void validateDrawSetup(GLsizei drawCount, GLsizei stride, GLenum indexType);
 
-
-
 void glfwErrorCallback(int error, const char* description);
+
+bool detectIntelGPU();
 
 #endif

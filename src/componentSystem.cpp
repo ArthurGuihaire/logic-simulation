@@ -15,7 +15,7 @@
 ComponentSystem::ComponentSystem(Renderer& renderer) 
  : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
-    DrawElementsIndirectCommand defaultCommand {0, 0, 0, 0, 0};
+    DrawElementsIndirectCommand defaultCommand {0, 1, 0, 0, 0};
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
     for (uint32_t i = 0; i < numShaders; i++) {

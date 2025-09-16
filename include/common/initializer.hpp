@@ -9,7 +9,7 @@ class Initializer {
     public:
         Initializer();
         void setWindowSize(int width, int height);
-        void initGLFW();
+        void initGLFW(int majorVersion, int minorVersion);
         void initGLAD();
         GLFWwindow* createWindow();
 };
