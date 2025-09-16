@@ -2,7 +2,7 @@
 #include <constants.hpp>
 
 Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYaw, int windowWidth, int windowHeight)
- : doUpdateMouse(true), cameraPosition(startingPosition), pitch(startingPitch), yaw(startingYaw)
+ : doUpdateMouse(true), cameraPosition(startingPosition), lastMouseX(0.0f), lastMouseY(0.0f), pitch(startingPitch), yaw(startingYaw)
 {
     cameraAngle.x = sin(glm::radians(pitch)) * cos(glm::radians(yaw));
     cameraAngle.y = cos(glm::radians(pitch));
@@ -49,12 +49,11 @@ void Camera::updateMouse(const float mouseX, const float mouseY) {
         if (pitch > 179.0f) pitch = 179.0f;
         else if (pitch < 1.0f) pitch = 1.0f;
 
-
-        updateView();
-    }
+        yaw = glm::mod(yaw, 360.0f);
     /*else {
         doUpdateMouse = true;
     }*/
+    }
 }
 
 glm::mat4 Camera::getViewProjection() {

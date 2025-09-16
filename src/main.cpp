@@ -65,7 +65,7 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
+        //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
         (renderer.*renderFrame)();
         //renderer.renderFrameIntelGPU();
 
