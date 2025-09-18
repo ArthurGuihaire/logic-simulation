@@ -1,11 +1,10 @@
-#ifndef INSTANCED_COMPONENT
-#define INSTANCED_COMPONENT
+#pragma once
 #include <componentStructs.hpp>
 #include <gpuBuffer.hpp>
 #include <renderer.hpp>
-class InstancedComponentSystem {
+class ComponentSystem {
     public:
-        InstancedComponentSystem(Renderer& renderer);
+        ComponentSystem();
         void createComponent(const glm::vec3 coordianates, const glm::vec4 color, const uint32_t mesh, const LogicType logic);
         void removeComponent(Component& removedComponent);
         InstanceAttribute& getComponentAttributes(const Component& component);
@@ -19,4 +18,3 @@ class InstancedComponentSystem {
         gpuBuffer indexBufferPerMesh[numMeshes];
         gpuBuffer instanceAttribsBuffer[numMeshes];
 };
-#endif

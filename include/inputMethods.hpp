@@ -2,7 +2,7 @@
 #include <camera.hpp>
 struct userPointers {
     Camera& camera;
-    ComponentSystem& componentSystem;
+    UniqueComponentSystem& componentSystem;
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);

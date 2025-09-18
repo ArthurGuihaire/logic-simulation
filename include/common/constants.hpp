@@ -1,5 +1,4 @@
-#ifndef CONSTANTS
-#define CONSTANTS
+#pragma once
 #include <glm/glm.hpp>
 constexpr uint16_t windowWidth = 800;
 constexpr uint16_t windowHeight = 600;
@@ -137,4 +136,3 @@ namespace GoodGeo {
     constexpr uint32_t totalSizeIndices = sizeof(indices);
 }
 
-#endif

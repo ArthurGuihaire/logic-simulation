@@ -1,7 +1,7 @@
 #include <instancedComponents.hpp>
 #include <cstring> // For std::memcpy
 
-InstancedComponentSystem::InstancedComponentSystem(Renderer& renderer) {
+ComponentSystem::ComponentSystem() {
     glGenVertexArrays(numMeshes, &vao[0]);
     vertexBuffer.createBuffer(GL_ARRAY_BUFFER, &GoodGeo::vertices[0], GoodGeo::totalSizeVertices);
     for (uint32_t i = 0; i < numMeshes; i++) {
@@ -12,7 +12,7 @@ InstancedComponentSystem::InstancedComponentSystem(Renderer& renderer) {
     }
 }
 
-void InstancedComponentSystem::createComponent(const glm::vec3 coordianates, const glm::vec4 color, const uint32_t mesh, const LogicType logic) {
+void ComponentSystem::createComponent(const glm::vec3 coordianates, const glm::vec4 color, const uint32_t mesh, const LogicType logic) {
     //Create a new component
     componentsPerMesh[mesh].push_back({false, logic, mesh});
     //Add the translation matrix to list of instance attributes
@@ -26,7 +26,7 @@ void InstancedComponentSystem::createComponent(const glm::vec3 coordianates, con
         iab.addData(&instanceAttribs[mesh].back(), sizeof(InstanceAttribute));
 }
 
-void InstancedComponentSystem::removeComponent(Component& removedComponent) {
+void ComponentSystem::removeComponent(Component& removedComponent) {
     const uint32_t componentIndex = &removedComponent - &componentsPerMesh[removedComponent.meshType][0];
     const uint32_t mesh = removedComponent.meshType;
     //If its the last component just remove it
@@ -45,7 +45,7 @@ void InstancedComponentSystem::removeComponent(Component& removedComponent) {
     }
 }
 
-InstanceAttribute& InstancedComponentSystem::getComponentAttributes(const Component& component) {
+InstanceAttribute& ComponentSystem::getComponentAttributes(const Component& component) {
     const uint32_t componentIndex = &component - &(componentsPerMesh[component.meshType][0]);
     return instanceAttribs[component.meshType][componentIndex];
 }

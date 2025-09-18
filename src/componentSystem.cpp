@@ -1,3 +1,4 @@
+#include <componentSystem.hpp>
 #include "componentStructs.hpp"
 #include "gl.h"
 #include <cstdint>
@@ -9,13 +10,13 @@
 #include <arrayUtils.hpp>
 #include <constants.hpp>
 
-/*const InstancedComponentSystem &
+/*const ComponentSystem &
  * Tiny optimization:
  * Have a single vector for components and don't copy components on moveUniqueComponents instead just copy the indices and update the correct component
 */
 
-ComponentSystem::ComponentSystem(Renderer& renderer) 
- : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER), instancedSystem(renderer)
+UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer) 
+ : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
@@ -29,7 +30,7 @@ ComponentSystem::ComponentSystem(Renderer& renderer)
     renderer.init(&vertexArrayObject[0], &drawCountArray[0], &drawFirstIndexArray[0], &componentsPerShader[0]);
 }
 
-void ComponentSystem::createUniqueComponent(const float* componentVertices, const uint32_t numVertexFloats, const LogicType logicType) { //Pass array by pointer
+void UniqueComponentSystem::createUniqueComponent(const float* componentVertices, const uint32_t numVertexFloats, const LogicType logicType) { //Pass array by pointer
     std::vector<uint16_t>& indices = indicesPerShader[shaderType::Ethereal];
     //Get size variables that are needed later
     const uint32_t vertexCount = numVertexFloats / 3;
@@ -76,7 +77,7 @@ void ComponentSystem::createUniqueComponent(const float* componentVertices, cons
     componentsPerShader[shaderType::Ethereal].push_back({{false, logicType, 0}, shaderType::Ethereal, &indices, firstComponentIndex, vertexCount});
 }
 
-uint32_t ComponentSystem::addUniqueComponent(const uint16_t* newIndices, uint32_t numIndices, const shaderType shaderID) {
+uint32_t UniqueComponentSystem::addUniqueComponent(const uint16_t* newIndices, uint32_t numIndices, const shaderType shaderID) {
     std::vector<uint16_t>& indices = indicesPerShader[shaderID];
     bool needMoreMemory = true;
     std::pair<bool, unsigned int> freeMemoryRegion;
@@ -133,7 +134,7 @@ uint32_t ComponentSystem::addUniqueComponent(const uint16_t* newIndices, uint32_
     return firstComponentIndex;
 }
 
-void ComponentSystem::removeUniqueComponent(UniqueComponent& removedComponent) {
+void UniqueComponentSystem::removeUniqueComponent(UniqueComponent& removedComponent) {
     //Get a reference to the component. index is passed in because we need the index to remove the component itself.
     std::vector<uint16_t>& indices = *(removedComponent.indicesPointer);
     std::vector<UniqueComponent>& components = componentsPerShader[removedComponent.shaderID];
@@ -190,7 +191,7 @@ void ComponentSystem::removeUniqueComponent(UniqueComponent& removedComponent) {
     }
 }
 
-void ComponentSystem::moveUniqueComponent(UniqueComponent& component, const shaderType newShader) {
+void UniqueComponentSystem::moveUniqueComponent(UniqueComponent& component, const shaderType newShader) {
     //STEP 1: add the component to the new list
     const uint32_t firstComponentIndex = addUniqueComponent(&(*(component.indicesPointer))[component.firstIndex], component.numIndices, newShader);
     componentsPerShader[newShader].push_back(component);
@@ -202,6 +203,6 @@ void ComponentSystem::moveUniqueComponent(UniqueComponent& component, const shad
     newComponent.firstIndex = firstComponentIndex;
 }
 
-void ComponentSystem::printIndirectDraw(const uint32_t shaderID, const uint32_t index) const {
+void UniqueComponentSystem::printIndirectDraw(const uint32_t shaderID, const uint32_t index) const {
     std::cout << "indirect draw attribs:\nCount: " << drawCountArray[shaderID][index] << "\nFirst index: " << (uintptr_t)drawFirstIndexArray[shaderID][index] << std::endl;
 }

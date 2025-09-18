@@ -1,5 +1,4 @@
-#ifndef CAMERA
-#define CAMERA
+#pragma once
 #include <openglPCH.hpp>
 class Camera {
     public:
@@ -24,4 +23,3 @@ class Camera {
         void updateView();
 };
 
-#endif

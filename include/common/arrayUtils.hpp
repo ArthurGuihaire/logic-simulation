@@ -1,5 +1,4 @@
-#ifndef ARRAY_UTILS
-#define ARRAY_UTILS
+#pragma once
 #include <vector>
 #include <componentSystem.hpp>
 
@@ -11,5 +10,3 @@ uint32_t findLastCommand(std::vector<GLsizei>& counts, std::vector<const void*> 
 uint32_t findContainingCommand(std::vector<GLsizei>& counts, std::vector<const void*> indices, uint32_t firstIndex, uint32_t numIndices);
 
 std::pair<uint32_t, uint32_t> findEdgeCommands(std::vector<GLsizei>& counts, std::vector<const void*> indices, uint32_t edgeLocation, uint32_t edgeSize);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef COMPONENT_STRUCTS
-#define COMPONENT_STRUCTS
+#pragma once
 #include <shaderType.hpp>
 #include <vector>
 
@@ -34,4 +33,4 @@ struct UniqueComponent : Component {
     uint32_t numIndices;
 };
 
-#endif
+

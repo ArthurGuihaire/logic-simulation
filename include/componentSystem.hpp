@@ -1,5 +1,4 @@
-#ifndef COMPONENT
-#define COMPONENT
+#pragma once
 #include <shaderType.hpp>
 #include <vector>
 #include <openglPCH.hpp>
@@ -9,9 +8,9 @@
 #include <componentStructs.hpp>
 #include <instancedComponents.hpp>
 
-class ComponentSystem {
+class UniqueComponentSystem : public ComponentSystem {
     public:
-        ComponentSystem(Renderer& renderer);
+        UniqueComponentSystem(Renderer& renderer);
         void createUniqueComponent(const float* vertices, const uint32_t numVertices, const LogicType logic);
         uint32_t addUniqueComponent(const uint16_t* newIndices, uint32_t numIndices, shaderType shaderID);
         void removeUniqueComponent(UniqueComponent& removedComponent);
@@ -32,8 +31,5 @@ class ComponentSystem {
         std::vector<const void*> drawFirstIndexArray[numShaders];
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[numShaders];
-
-        InstancedComponentSystem instancedSystem;
 };
 
-#endif

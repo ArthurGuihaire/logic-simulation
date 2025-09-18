@@ -1,5 +1,4 @@
-#ifndef RENDERER
-#define RENDERER
+#pragma once
 #include <gpuBuffer.hpp>
 #include <constants.hpp>
 #include <componentStructs.hpp>
@@ -21,4 +20,3 @@ class Renderer {
         std::vector<UniqueComponent>* componentsPerShader;
 };
 
-#endif

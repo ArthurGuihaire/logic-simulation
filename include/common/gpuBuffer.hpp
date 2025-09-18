@@ -1,5 +1,4 @@
-#ifndef GPU_BUFFER
-#define GPU_BUFFER
+#pragma once
 
 class gpuBuffer {
     public:
@@ -23,4 +22,3 @@ class gpuBuffer {
         unsigned int m_usedMemory;
         unsigned int m_bufferType;
 };
-#endif

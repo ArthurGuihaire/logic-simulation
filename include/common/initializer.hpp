@@ -1,5 +1,4 @@
-#ifndef INITIALIZER
-#define INITIALIZER
+#pragma once
 #include <GLFW/glfw3.h>
 
 class Initializer {
@@ -13,4 +12,3 @@ class Initializer {
         void initGLAD();
         GLFWwindow* createWindow();
 };
-#endif

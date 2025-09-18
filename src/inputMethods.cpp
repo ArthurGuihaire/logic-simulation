@@ -29,7 +29,7 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         }
     }
     if (key == Key::placeBlock && action == GLFW_PRESS) {
-        ComponentSystem& system = static_cast<userPointers*>(glfwGetWindowUserPointer(window))->componentSystem;
+        UniqueComponentSystem& system = static_cast<userPointers*>(glfwGetWindowUserPointer(window))->componentSystem;
 
         glm::vec3 camPosition = camera.getPosition() + 3.0f * camera.getViewDirection();
         glm::mat4 transform = glm::translate(identity_mat4, camPosition);

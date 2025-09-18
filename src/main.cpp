@@ -41,7 +41,7 @@ int main() {
 
     Camera camera(glm::vec3(-3.0f, 0.0f, 0.0f), 90.0f, 0.0f, windowWidth, windowHeight);
     Renderer renderer(camera);
-    ComponentSystem componentSystem(renderer);
+    UniqueComponentSystem componentSystem(renderer);
 
     userPointers callbackUtils = {camera, componentSystem};
 

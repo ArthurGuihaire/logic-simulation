@@ -1,5 +1,4 @@
-#ifndef UTILS
-#define UTILS
+#pragma once
 #include <componentStructs.hpp>
 
 template <typename integerType>
@@ -23,4 +22,4 @@ void glfwErrorCallback(int error, const char* description);
 
 bool detectIntelGPU();
 
-#endif
+
