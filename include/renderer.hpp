@@ -1,5 +1,5 @@
 #ifndef RENDERER
-#define RENDERER\
+#define RENDERER
 #include <gpuBuffer.hpp>
 #include <constants.hpp>
 #include <componentStructs.hpp>
@@ -8,7 +8,7 @@
 class Renderer {
     public:
         Renderer(Camera& cameraReference);
-        void init(uint32_t* newVao, std::vector<GLsizei>* countArray, std::vector<const void*>* firstIndexArray, std::vector<Component>* components);
+        void init(uint32_t* newVao, std::vector<GLsizei>* countArray, std::vector<const void*>* firstIndexArray, std::vector<UniqueComponent>* components);
         void renderFrame();
     private:
         uint32_t uniqueVAO[numShaders];
@@ -18,7 +18,7 @@ class Renderer {
         std::vector<GLsizei>* countArray;
         std::vector<const void*>* firstIndexArray;
         Camera& camera;
-        std::vector<Component>* componentsPerShader;
+        std::vector<UniqueComponent>* componentsPerShader;
 };
 
 #endif

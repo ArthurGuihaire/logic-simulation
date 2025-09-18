@@ -21,7 +21,7 @@ Renderer::Renderer(Camera& cameraReference)
     uniformLocationProjectionView = glGetUniformLocation(shaderProgram, "projectionView");
 }
 
-void Renderer::init(uint32_t* newVao, std::vector<GLsizei>* countArrayPointer, std::vector<const void*>* firstIndexArrayPointer, std::vector<Component>* components) {
+void Renderer::init(uint32_t* newVao, std::vector<GLsizei>* countArrayPointer, std::vector<const void*>* firstIndexArrayPointer, std::vector<UniqueComponent>* components) {
     std::memcpy(&uniqueVAO[0], newVao, numShaders * sizeof(uint32_t));
 
     countArray = countArrayPointer;
@@ -37,7 +37,6 @@ void Renderer::init(uint32_t* newVao, std::vector<GLsizei>* countArrayPointer, s
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     }
-
 }
 
 void Renderer::renderFrame() {
@@ -50,7 +49,7 @@ void Renderer::renderFrame() {
             glUniform4fv(uniformLocationColor, 1, glm::value_ptr(Colors::blue));
 
             glUniformMatrix4fv(uniformLocationProjectionView, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
-            glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, componentsPerShader[shaderGroup].size(), 0);
+            glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, nullptr, componentsPerShader[shaderGroup].size(), 0);
             
             printOpenGLErrors("OpenGL Error");
         }
@@ -64,7 +63,7 @@ void Renderer::renderFrame() {
 
             glUniformMatrix4fv(uniformLocationProjectionView, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
 
-            glMultiDrawElements(GL_TRIANGLES, &(countArray[shaderGroup][0]), GL_UNSIGNED_INT, &(firstIndexArray[shaderGroup][0]), countArray[shaderGroup].size());
+            glMultiDrawElements(GL_TRIANGLES, &(countArray[shaderGroup][0]), GL_UNSIGNED_SHORT, &(firstIndexArray[shaderGroup][0]), countArray[shaderGroup].size());
         }
     }
 }

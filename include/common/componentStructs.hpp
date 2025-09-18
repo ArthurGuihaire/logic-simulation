@@ -4,13 +4,16 @@
 #include <vector>
 
 enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
+
+struct InstanceAttribute {
+    glm::mat4 model;
+    glm::vec3 color;
+};
+
 struct Component {
     bool active;
     LogicType type;
-    std::vector<uint32_t>* indicesPointer;
-    uint32_t firstIndex;
-    uint32_t numIndices;
-    shaderType shaderID;
+    uint32_t meshType;
     bool evaluate(bool a, bool b) {
         switch (type) {
             case LogicType::TRAN: return a;
@@ -23,4 +26,12 @@ struct Component {
         }
     }
 };
+
+struct UniqueComponent : Component {
+    shaderType shaderID;
+    std::vector<uint16_t>* indicesPointer;
+    uint32_t firstIndex;
+    uint32_t numIndices;
+};
+
 #endif

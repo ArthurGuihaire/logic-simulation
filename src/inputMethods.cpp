@@ -34,14 +34,14 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         glm::vec3 camPosition = camera.getPosition() + 3.0f * camera.getViewDirection();
         glm::mat4 transform = glm::translate(identity_mat4, camPosition);
 
-        constexpr size_t vertexCount = sizeof(Geometry::cubeVertices) / (3 * sizeof(float));
+        constexpr size_t vertexCount = sizeof(BadGeometry::cube) / (3 * sizeof(float));
         float vertices[vertexCount * 3];
 
         for (uint32_t i = 0; i < vertexCount * 3; i += 3) {
             glm::vec4 transformed = transform * glm::vec4(
-                Geometry::cubeVertices[i + 0],
-                Geometry::cubeVertices[i + 1],
-                Geometry::cubeVertices[i + 2],
+                BadGeometry::cube[i + 0],
+                BadGeometry::cube[i + 1],
+                BadGeometry::cube[i + 2],
                 1.0f
             );
 
@@ -50,7 +50,7 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
             vertices[i + 2] = transformed.z;
         }
 
-        system.createComponent(&vertices[0], 36*3, LogicType::AND);
+        system.createUniqueComponent(&vertices[0], 36*3, LogicType::AND);
         std::cout << "Created component maybe" << std::endl;
     }
 }

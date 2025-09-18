@@ -6,7 +6,8 @@ categories = {
     ".hpp": "header files",
     ".cpp": "C++ source files",
     ".shader": "shader files",
-    ".sh": "scripts"
+    ".sh": "scripts",
+    ".py": "scripts"
 }
 
 ignore_files = {"CMakeLists.txt"}

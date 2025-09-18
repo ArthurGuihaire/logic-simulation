@@ -1,6 +1,6 @@
-#include <glm/glm.hpp>
 #ifndef CONSTANTS
 #define CONSTANTS
+#include <glm/glm.hpp>
 constexpr uint16_t windowWidth = 800;
 constexpr uint16_t windowHeight = 600;
 
@@ -18,7 +18,9 @@ constexpr inline glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr float sensitivity = 0.5f;
 
 constexpr unsigned int gpuBufferMultiple = 4096;
-constexpr unsigned int numShaders = 5;
+
+constexpr unsigned int numMeshes = 2;
+constexpr unsigned int numShaders = 2;
 
 namespace Colors {
     constexpr inline glm::vec4 red {1.0f, 0.0f, 0.0f, 1.0f};
@@ -28,13 +30,13 @@ namespace Colors {
     constexpr inline glm::vec4 blue {0.0f, 0.0f, 1.0f, 1.0f};
 }
 
-namespace Geometry {
-    constexpr inline float triangle[] = {
+namespace BadGeometry {
+    constexpr inline float triangle[9] = {
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f, 
         0.0f, 1.0f, 0.0f, 
     };
-    constexpr inline float cubeVertices[] = {
+    constexpr inline float cube[108] = {
         // Front face (z = 1)
         -1.0f, -1.0f,  1.0f,
         1.0f, -1.0f,  1.0f,
@@ -90,6 +92,49 @@ namespace Geometry {
         -1.0f, -1.0f,  1.0f
     };
 
+    enum size {
+        Triangle = sizeof(triangle) / sizeof(float),
+        Cube = sizeof(cube) / sizeof(float)
+    };
+
+    constexpr uint32_t totalSize = size::Cube + size::Triangle;
+}
+
+namespace GoodGeo {
+    constexpr inline float vertices[] = {
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f, 
+        0.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+        1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f 
+    };
+    constexpr inline uint16_t indices[] = {
+        0, 1, 2, 
+        7, 8, 9,
+        7, 9, 10,
+        3, 4, 5,
+        3, 5, 6,
+        3, 7, 10,
+        3, 10, 6,
+        4, 8, 9,
+        4, 9, 5,
+        6, 5, 9,
+        6, 9, 10,
+        3, 4, 8,
+        3, 8, 7
+    };
+    constexpr inline uint32_t indexStart[] = {
+        0, 3
+    };
+
+    constexpr uint32_t totalSizeVertices = sizeof(vertices);
+    constexpr uint32_t totalSizeIndices = sizeof(indices);
 }
 
 #endif

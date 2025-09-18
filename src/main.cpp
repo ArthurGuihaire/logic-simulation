@@ -47,14 +47,14 @@ int main() {
 
     glfwSetWindowUserPointer(window, &callbackUtils); //Make camera accessible inside callback functions
 
-    componentSystem.createComponent(&Geometry::cubeVertices[0], sizeof(Geometry::cubeVertices) / sizeof(float), LogicType::AND);
+    componentSystem.createUniqueComponent(&BadGeometry::cube[0], sizeof(BadGeometry::cube) / sizeof(float), LogicType::AND);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         //componentSystem.printIndirectDraw(shaderType::Ethereal, 0);
         (renderer.renderFrame)();
         //renderer.renderFrameIntelGPU();
