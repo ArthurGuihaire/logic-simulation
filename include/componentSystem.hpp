@@ -16,20 +16,18 @@ class UniqueComponentSystem : public ComponentSystem {
         void removeUniqueComponent(UniqueComponent& removedComponent);
         void moveUniqueComponent(UniqueComponent& movedComponent, shaderType newShader);
 
-        void createComponent(const glm::vec3 coordianates, const glm::vec4 color, const uint32_t mesh, const LogicType logic);
-        void removeComponent(Component& removedComponent);
-        void getComponentAttributes(const Component& component);
-
         void printIndirectDraw(uint32_t shaderID, uint32_t index) const;
+        //Needed for renderer
         std::vector<UniqueComponent> componentsPerShader[5];
+        std::vector<GLsizei> drawCountArray[numShaders];
+        std::vector<const void*> drawFirstIndexArray[numShaders];
     private:
         std::vector<float> vertices;
         bool indicesFreeMemoryMaybe;
         std::vector<uint16_t> indicesPerShader[numShaders];
         std::vector<std::pair<uint32_t, uint32_t>> freeIndicesPerShader[numShaders];
-        std::vector<GLsizei> drawCountArray[numShaders];
-        std::vector<const void*> drawFirstIndexArray[numShaders];
         gpuBuffer vertexBuffer;
         gpuBuffer indexBufferPerShader[numShaders];
 };
 
+extern UniqueComponentSystem* g_componentSystem;

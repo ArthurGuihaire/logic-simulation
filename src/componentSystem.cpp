@@ -15,19 +15,28 @@
  * Have a single vector for components and don't copy components on moveUniqueComponents instead just copy the indices and update the correct component
 */
 
+UniqueComponentSystem* g_componentSystem = nullptr;
+
 UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer) 
- : indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
+ : ComponentSystem(renderer), indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
+    printOpenGLErrors("constructor");
+    //Initialize vertex array
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
+    //Initialize buffers
     for (uint32_t i = 0; i < numShaders; i++) {
         drawCountArray[i].push_back(0);
         drawFirstIndexArray[i].push_back(0);
         glBindVertexArray(vertexArrayObject[i]);
         indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
     }
+    printOpenGLErrors("afterLoop");
     vertexBuffer.bind();
-    renderer.init(&vertexArrayObject[0], &drawCountArray[0], &drawFirstIndexArray[0], &componentsPerShader[0]);
+    //Initialize renderer. Renderer owns the vertexArrayObjects
+    renderer.initUnique(&vertexArrayObject[0]);
+    //Set the global pointer
+    g_componentSystem = this;
 }
 
 void UniqueComponentSystem::createUniqueComponent(const float* componentVertices, const uint32_t numVertexFloats, const LogicType logicType) { //Pass array by pointer

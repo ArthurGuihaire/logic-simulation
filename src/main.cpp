@@ -47,7 +47,8 @@ int main() {
 
     glfwSetWindowUserPointer(window, &callbackUtils); //Make camera accessible inside callback functions
 
-    componentSystem.createUniqueComponent(&BadGeometry::cube[0], sizeof(BadGeometry::cube) / sizeof(float), LogicType::AND);
+    //componentSystem.createUniqueComponent(&BadGeometry::cube[0], sizeof(BadGeometry::cube) / sizeof(float), LogicType::AND);
+    componentSystem.createComponent({0.0f, 0.0f, 0.0f}, Colors::transparentGreen, 1, LogicType::AND);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);

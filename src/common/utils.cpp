@@ -44,8 +44,7 @@ unsigned int roundUpUInt(const unsigned int input, const unsigned int cutoff) {
 constexpr uint32_t floatBitmask = 0xFF;
 bool almostEqualFast(float a, float b) {
     uint32_t aBytes, bBytes;
-    std::memcpy(&aBytes, &a, sizeof(float));
-    std::memcpy(&bBytes, &b, sizeof(float));
+    std::memcpy(&aBytes, &a, sizeof(float) * 2);
     aBytes |= floatBitmask;
     bBytes |= floatBitmask;
     return aBytes == bBytes;

@@ -7,16 +7,19 @@
 class Renderer {
     public:
         Renderer(Camera& cameraReference);
-        void init(uint32_t* newVao, std::vector<GLsizei>* countArray, std::vector<const void*>* firstIndexArray, std::vector<UniqueComponent>* components);
+        void initUnique(uint32_t* uniqueVaoArray);
+        void initInstanced(uint32_t* instancedVaoArray, gpuBuffer& vertexBuffer, gpuBuffer* instanceAttribsBufferArray);
         void renderFrame();
     private:
         uint32_t uniqueVAO[numShaders];
-        uint32_t shaderProgram;
-        uint32_t uniformLocationColor;
-        uint32_t uniformLocationProjectionView;
-        std::vector<GLsizei>* countArray;
-        std::vector<const void*>* firstIndexArray;
+        uint32_t instancedVAO[numMeshes];
+
+        uint32_t shaderUnique;
+        uint32_t shaderInstanced;
+
+        uint32_t uniformColorUnique;
+        uint32_t uniformProjectionViewUnique;
+        uint32_t uniformProjectionViewInstanced;
         Camera& camera;
-        std::vector<UniqueComponent>* componentsPerShader;
 };
 

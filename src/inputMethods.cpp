@@ -51,7 +51,6 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         }
 
         system.createUniqueComponent(&vertices[0], 36*3, LogicType::AND);
-        std::cout << "Created component maybe" << std::endl;
     }
 }
 

@@ -101,35 +101,42 @@ namespace BadGeometry {
 
 namespace GoodGeo {
     constexpr inline float vertices[] = {
+        //triangle
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f, 
         0.0f, 1.0f, 0.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-        1.0f, -1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f 
+        //cube
+        -1.0f, -1.0f, -1.0f, // 0
+        1.0f, -1.0f, -1.0f, // 1
+        1.0f,  1.0f, -1.0f, // 2
+        -1.0f,  1.0f, -1.0f, // 3
+        -1.0f, -1.0f,  1.0f, // 4
+        1.0f, -1.0f,  1.0f, // 5
+        1.0f,  1.0f,  1.0f, // 6
+        -1.0f,  1.0f,  1.0f  // 7
     };
     constexpr inline uint16_t indices[] = {
+        //triangle
         0, 1, 2, 
-        7, 8, 9,
-        7, 9, 10,
+        //cube        
         3, 4, 5,
-        3, 5, 6,
+        5, 6, 3,
+        7, 8, 9,
+        9, 10, 7,
         3, 7, 10,
-        3, 10, 6,
+        10, 6, 3,
         4, 8, 9,
-        4, 9, 5,
-        6, 5, 9,
-        6, 9, 10,
+        9, 5, 4,
         3, 4, 8,
-        3, 8, 7
+        8, 7, 3,
+        6, 5, 9,
+        9, 10, 6
     };
     constexpr inline uint32_t indexStart[] = {
         0, 3
+    };
+    constexpr inline uint32_t numIndices[] = {
+        3, 30
     };
 
     constexpr uint32_t totalSizeVertices = sizeof(vertices);

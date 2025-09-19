@@ -5,8 +5,8 @@
 enum class LogicType {AND, NAND, OR, NOR, XOR, NOT, TRAN};
 
 struct InstanceAttribute {
+    glm::vec4 color;
     glm::mat4 model;
-    glm::vec3 color;
 };
 
 struct Component {
