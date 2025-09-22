@@ -16,8 +16,16 @@ void Initializer::initGLFW(int majorVersion, int minorVersion) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-GLFWwindow* Initializer::createWindow() {
-    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "OpenGL", NULL, NULL);
+GLFWwindow* Initializer::createWindow(bool fullscreen) {
+    GLFWwindow* window;
+    if (fullscreen) {
+        GLFWmonitor* mon = glfwGetPrimaryMonitor();
+        const GLFWvidmode* vidMode = glfwGetVideoMode(mon);
+        window = glfwCreateWindow(vidMode->width, vidMode->height, "OpenGL", mon, NULL);
+    }
+    else {
+        window = glfwCreateWindow(windowWidth, windowHeight, "OpenGL", NULL, NULL);
+    }
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;

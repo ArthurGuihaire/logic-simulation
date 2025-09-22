@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from pathlib import Path
 
 # Define extensions and categories
 categories = {
@@ -13,10 +14,12 @@ categories = {
 ignore_files = {"CMakeLists.txt"}
 ignore_dirs = {"build"}
 
+ROOT_DIR = Path.home() / "projects" / "renderer"
+
 # Initialize counters
 counts = {cat: 0 for cat in categories.values()}
 
-for root, dirs, files in os.walk("."):
+for root, dirs, files in os.walk(ROOT_DIR):
     # Skip ignored directories
     dirs[:] = [d for d in dirs if d not in ignore_dirs]
 

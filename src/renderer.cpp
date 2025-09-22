@@ -34,8 +34,6 @@ Renderer::Renderer(Camera& cameraReference)
 void Renderer::initUnique(uint32_t* uniqueVaoArray) {
     std::memcpy(&uniqueVAO, uniqueVaoArray, numMeshes * sizeof(uint32_t));
 
-    printOpenGLErrors("initUnique");
-
     glBindVertexArray(uniqueVAO[0]);
     
     for (uint32_t vertexArray = 0; vertexArray < numShaders; vertexArray++) {
@@ -46,7 +44,6 @@ void Renderer::initUnique(uint32_t* uniqueVaoArray) {
 }
 
 void Renderer::initInstanced(uint32_t* instancedVaoArray, gpuBuffer& vertexBuffer, gpuBuffer* instanceAttribsBufferArray) {
-    printOpenGLErrors("1");
     std::memcpy(&instancedVAO, instancedVaoArray, numMeshes * sizeof(uint32_t));
     
     for (uint32_t vertexArray = 0; vertexArray < numMeshes; vertexArray++) {
@@ -62,15 +59,9 @@ void Renderer::initInstanced(uint32_t* instancedVaoArray, gpuBuffer& vertexBuffe
         glVertexAttribDivisor(1, 1);
         //Next 4 vertexAttribPointers for model matrix
         for (uint32_t i = 0; i < 4; i++) {
-            std::cout << i << "\n";
-            printOpenGLErrors("before");
             glEnableVertexAttribArray(2 + i);
-            printOpenGLErrors("2");
             glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceAttribute), (void*)((i+1) * sizeof(glm::vec4)));
-            printOpenGLErrors("3");
             glVertexAttribDivisor(2 + i, 1);
-            printOpenGLErrors("4");
-            std::cout << i << std::endl;
         }
     }
 }
@@ -80,7 +71,7 @@ void Renderer::renderFrame() {
         if (g_componentSystem->componentsPerShader[shaderGroup].size() > 0) {
             glBindVertexArray(uniqueVAO[shaderGroup]);
             glUseProgram(shaderUnique);
-            glUniform4fv(uniformColorUnique, 1, glm::value_ptr(Colors::blue));
+            glUniform4fv(uniformColorUnique, 1, glm::value_ptr(Color::blue));
 
             glUniformMatrix4fv(uniformProjectionViewUnique, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
 
@@ -89,13 +80,15 @@ void Renderer::renderFrame() {
     }
 
     for (uint32_t meshGroup = 0; meshGroup < numMeshes; meshGroup++) {
-        //if (g_componentSystem->componentsPerMesh[meshGroup].size() > 0) {
+        if (g_componentSystem->componentsPerMesh[meshGroup].size() > 0) {
             glBindVertexArray(instancedVAO[meshGroup]);
             glUseProgram(shaderInstanced);
 
             glUniformMatrix4fv(uniformProjectionViewInstanced, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
 
-            glDrawElementsInstanced(GL_TRIANGLES, GoodGeo::numIndices[meshGroup], GL_UNSIGNED_SHORT, (void*)0, g_componentSystem->instanceCount[meshGroup]);
-        //}
+            glDrawElementsInstanced(GL_TRIANGLES, Geometry::numIndices[meshGroup], GL_UNSIGNED_SHORT, (void*)0, g_componentSystem->instanceCount[meshGroup]);
+        }
     }
+
+    printOpenGLErrors("OpenGL Error");
 }

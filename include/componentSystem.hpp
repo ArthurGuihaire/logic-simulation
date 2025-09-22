@@ -1,11 +1,4 @@
 #pragma once
-#include <shaderType.hpp>
-#include <vector>
-#include <openglPCH.hpp>
-#include <gpuBuffer.hpp>
-#include <constants.hpp>
-#include <renderer.hpp>
-#include <componentStructs.hpp>
 #include <instancedComponents.hpp>
 
 class UniqueComponentSystem : public ComponentSystem {

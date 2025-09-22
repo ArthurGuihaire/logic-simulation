@@ -10,5 +10,5 @@ class Initializer {
         void setWindowSize(int width, int height);
         void initGLFW(int majorVersion, int minorVersion);
         void initGLAD();
-        GLFWwindow* createWindow();
+        GLFWwindow* createWindow(bool fullscreen);
 };

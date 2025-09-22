@@ -3,6 +3,7 @@
 struct userPointers {
     Camera& camera;
     UniqueComponentSystem& componentSystem;
+    uint32_t itemSelected;
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);

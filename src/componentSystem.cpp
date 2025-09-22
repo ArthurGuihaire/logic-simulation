@@ -1,14 +1,7 @@
 #include <componentSystem.hpp>
-#include "componentStructs.hpp"
-#include "gl.h"
-#include <cstdint>
-#include <gpuBuffer.hpp>
-#include <shaderType.hpp>
-#include <sys/types.h>
-#include <utils.hpp>
-#include <cstring> //For std::memcpy
+#include <instancedComponents.hpp>
 #include <arrayUtils.hpp>
-#include <constants.hpp>
+#include <cstring> //For memcpy
 
 /*const ComponentSystem &
  * Tiny optimization:
@@ -20,7 +13,6 @@ UniqueComponentSystem* g_componentSystem = nullptr;
 UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer) 
  : ComponentSystem(renderer), indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
-    printOpenGLErrors("constructor");
     //Initialize vertex array
     uint32_t vertexArrayObject[numShaders];
     glGenVertexArrays(numShaders, &vertexArrayObject[0]);
@@ -31,7 +23,6 @@ UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer)
         glBindVertexArray(vertexArrayObject[i]);
         indexBufferPerShader[i].createBuffer(GL_ELEMENT_ARRAY_BUFFER);
     }
-    printOpenGLErrors("afterLoop");
     vertexBuffer.bind();
     //Initialize renderer. Renderer owns the vertexArrayObjects
     renderer.initUnique(&vertexArrayObject[0]);
