@@ -8,6 +8,7 @@ constexpr uint16_t windowHeight = 600;
 constexpr inline glm::mat4 identityMat4 = glm::mat4(1.0f);
 
 constexpr float movementSpeed = 0.015f;
+constexpr float blockInteractRange = 3.0f;
 
 constexpr inline float textureVertices[4][2] = {
     {1.0f, 1.0f}, // top-right
@@ -104,6 +105,8 @@ namespace Geometry {
         {1, scaleMatrix({1.0f, 0.5f, 1.0f}), Color::purple, LogicType::XOR},
         {1, scaleMatrix({1.0f, 0.5f, 1.0f}), Color::magenta, LogicType::XNOR}
     };
+
+    constexpr bool multiTile[9] = {false, true, false, false, false, false, false, false, false};
 
     constexpr uint32_t totalSizeVertices = sizeof(vertices);
     constexpr uint32_t totalSizeIndices = sizeof(indices);

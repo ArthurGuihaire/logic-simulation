@@ -3,6 +3,7 @@
 #include <keyBindings.hpp>
 
 bool mouseIsLocked = true;
+bool multiTile = false;
 GLFWcursor* arrowCursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -31,7 +32,7 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         if (key == Key::placeBlock) {
             UniqueComponentSystem& system = static_cast<userPointers*>(glfwGetWindowUserPointer(window))->componentSystem;
 
-            glm::vec3 cursorPosition = glm::round(camera.getPosition() + 3.0f * camera.getViewDirection());
+            glm::vec3 cursorPosition = glm::round(camera.getPosition() + blockInteractRange * camera.getViewDirection());
 
             if (itemSelected != 0 && !(componentExists(glm::round(cursorPosition)))) {
                 std::cout << "created component" << std::endl;
@@ -72,6 +73,8 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
             if (key == Key::selectItem[i]) { // 0-8 maps to 1-9
                 itemSelected = i;
                 std::cout << "selected " << i << std::endl;
+                multiTile = Geometry::multiTile[i];
+                break;
             }
         }
     }
