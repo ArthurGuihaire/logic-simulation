@@ -36,6 +36,7 @@ namespace Color {
     constexpr inline glm::vec4 darkBlue {0.0f, 0.0f, 0.4f, 1.0f};
     constexpr inline glm::vec4 purple {0.5f, 0.0f, 0.5f, 1.0f};
     constexpr inline glm::vec4 magenta{1.0f, 0.0f, 0.5f, 1.0f};
+    constexpr inline glm::vec4 yellow{1.0f, 1.0f, 0.0f, 0.5f};
 }
 
 struct meshAttributes {

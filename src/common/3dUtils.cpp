@@ -3,41 +3,81 @@
 
 constexpr inline float tValueOffset = 1.0e-6;
 
-void evaulateDimension(float (&tValues)[(int) (3 * (blockInteractRange + 1))], uint32_t& numTValues, float cameraPositionDim, float cameraAngleDim) {
-    if (almostEqual(cameraAngleDim, 0.0f)) return;
-    float start = cameraPositionDim;
-    float end = cameraPositionDim + blockInteractRange * cameraAngleDim;
-
-    if (end < start) std::swap(start, end);
-
-    const float startVal = glm::floor(start-0.5) + 0.5;
-    const float endVal = glm::ceil(end-0.5) + 0.5;
-
-    for (float k = startVal; k <= endVal; k++) {
-        tValues[numTValues++] = (k - start) / cameraAngleDim;
-    }
+void updateVariable(float& currentT, float tSlope, float& currentPosition) {
+    const float currentPositionRounded = tSlope < 0 ? 0.5 + glm::floor(currentPosition - 0.5) : 0.5 + glm::ceil(currentPosition - 0.5);
+    currentT += (currentPositionRounded - currentPosition) * tSlope;
+    currentPosition = currentPositionRounded;
 }
 
-glm::ivec3 raycastCamera(glm::vec3 &cameraPosition, glm::vec3 &cameraAngle) {
+glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool backtrace) {
     float tValues[(int) (3 * (blockInteractRange + 1))];
     uint32_t numTValues = 0;
+    glm::vec3 position = cameraPosition;
 
-    evaulateDimension(tValues, numTValues, cameraPosition.x, cameraAngle.x);
-    evaulateDimension(tValues, numTValues, cameraPosition.y, cameraAngle.y);
-    evaulateDimension(tValues, numTValues, cameraPosition.z, cameraAngle.z);
+    float tOverX, tOverY, tOverZ;
+    float xNextT, yNextT, zNextT;
 
-    //Go from near to far
-    for (uint32_t i = 0; i < numTValues; i++) {
-        glm::ivec3 position = glm::round(cameraPosition + cameraAngle * (tValues[i] + tValueOffset));
-        if (componentExists(position)) {
-            return glm::round(cameraPosition + cameraAngle * (tValues[i] - tValueOffset));
+    //Init all variables
+    if (almostEqual(cameraAngle.x, 0.0f)) {
+        xNextT = blockInteractRange;
+    }
+    else {
+        tOverX = 1 / cameraAngle.x;
+        xNextT = 0.0f;
+        updateVariable(xNextT, tOverX, cameraPosition.x);
+    }
+    if (almostEqual(cameraAngle.y, 0.0f)) {
+        xNextT = blockInteractRange;
+    }
+    else {
+        tOverY = 1 / cameraAngle.y;
+        yNextT = 0.0f;
+        updateVariable(yNextT, tOverY, cameraPosition.y);
+    }
+    if (almostEqual(cameraAngle.z, 0.0f)) {
+        xNextT = blockInteractRange;
+    }
+    else {
+        tOverZ = 1 / cameraAngle.z;
+        zNextT = 0.0f;
+        updateVariable(zNextT, tOverZ, cameraPosition.z);
+    }
+    float t = std::min(xNextT, std::min(yNextT, zNextT));
+
+    //Raymarch with ordered T
+    //Each iteration
+    while (t <= blockInteractRange) {
+        tValues[numTValues] = t;
+        numTValues++;
+
+        if (xNextT < yNextT && xNextT < zNextT) {
+            t = xNextT;
+            updateVariable(xNextT, tOverX, position.x);
+        }
+
+        else if (yNextT < zNextT) { // we already know xNextT is larger than yNextT
+            t = yNextT;
+            updateVariable(yNextT, tOverY, position.y);
+        }
+        else {
+            t = zNextT;
+            updateVariable(zNextT, tOverZ, position.z);
         }
     }
 
-    return glm::round(cameraPosition + blockInteractRange * cameraAngle);
-}
+    //Now we have an ordered t-array of integer intersections, for 0 <= t <= blockInteractRange
+    for (float t : tValues) {
+        //The block starts right after the intersection
+        glm::ivec3 candidateBlock = glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
+        if (componentExists(candidateBlock)) {
+            //If we round to right before the interestion
+            if (backtrace)
+                return glm::round(cameraPosition + cameraAngle * (t - tValueOffset));
+            else
+                return glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
+        }
+    }
 
-/*
-TO REWRITE RAYMARCHER FOR ORDERED T VALUES
-start at cameraPosition, each iteration find the minimum distance to reach a voxel boundary based on cameraAngle, and keep iterating through until t is greater than blockInteractRange
-*/
+    //If we never found a block, we simply return the block at the end of the range
+    return glm::round(cameraPosition + cameraAngle * blockInteractRange);
+}

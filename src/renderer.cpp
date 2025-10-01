@@ -29,6 +29,10 @@ Renderer::Renderer(Camera& cameraReference)
     shaderInstanced = createShader(instancedShaderSource.VertexSource, instancedShaderSource.FragmentSource);
 
     uniformProjectionViewInstanced = glGetUniformLocation(shaderInstanced, "projectionView");
+
+    glGenVertexArrays(1, &selectionCubeVAO);
+    glBindVertexArray(selectionCubeVAO);
+    selectionCubeEBO.createBuffer(GL_ELEMENT_ARRAY_BUFFER, &Geometry::indices[0], sizeof(Geometry::indices));
 }
 
 void Renderer::initUnique(uint32_t* uniqueVaoArray) {

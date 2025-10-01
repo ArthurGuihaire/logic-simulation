@@ -1,6 +1,7 @@
 #include <inputMethods.hpp>
 #include <camera.hpp> //need camera API
 #include <keyBindings.hpp>
+#include <3dUtils.hpp>
 
 bool mouseIsLocked = true;
 bool multiTile = false;
@@ -36,9 +37,6 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
 
             if (itemSelected != 0 && !(componentExists(glm::round(cursorPosition)))) {
                 std::cout << "created component" << std::endl;
-
-                //UPDATE TO USE ALL MESH ATTRIBUTES
-                //system.createComponent(cursorPosition, , Color::darkRed, 1, LogicType::AND);
                 const meshAttributes& attribs = Geometry::meshAttribArray[itemSelected];
                 system.createComponent(glm::round(cursorPosition), attribs.startingMatrix, attribs.color, attribs.meshIndex, attribs.logic);
             }

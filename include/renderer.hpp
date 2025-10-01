@@ -20,6 +20,9 @@ class Renderer {
         uint32_t uniformColorUnique;
         uint32_t uniformProjectionViewUnique;
         uint32_t uniformProjectionViewInstanced;
+
+        uint32_t selectionCubeVAO; //reuse the vertex buffer, vertex buffer is already a cube
+        gpuBuffer selectionCubeEBO;
+
         Camera& camera;
 };
-
