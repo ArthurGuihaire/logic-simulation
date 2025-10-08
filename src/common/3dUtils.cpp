@@ -18,7 +18,7 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
     float xNextT, yNextT, zNextT;
 
     //Init all variables
-    if (almostEqual(cameraAngle.x, 0.0f)) {
+    if (almostZero(cameraAngle.x)) {
         xNextT = blockInteractRange;
     }
     else {
@@ -26,16 +26,16 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
         xNextT = 0.0f;
         updateVariable(xNextT, tOverX, cameraPosition.x);
     }
-    if (almostEqual(cameraAngle.y, 0.0f)) {
-        xNextT = blockInteractRange;
+    if (almostZero(cameraAngle.y)) {
+        yNextT = blockInteractRange;
     }
     else {
         tOverY = 1 / cameraAngle.y;
         yNextT = 0.0f;
         updateVariable(yNextT, tOverY, cameraPosition.y);
     }
-    if (almostEqual(cameraAngle.z, 0.0f)) {
-        xNextT = blockInteractRange;
+    if (almostZero(cameraAngle.z)) {
+        zNextT = blockInteractRange;
     }
     else {
         tOverZ = 1 / cameraAngle.z;
@@ -47,8 +47,7 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
     //Raymarch with ordered T
     //Each iteration
     while (t <= blockInteractRange) {
-        tValues[numTValues] = t;
-        numTValues++;
+        tValues[numTValues++] = t;
 
         if (xNextT < yNextT && xNextT < zNextT) {
             t = xNextT;

@@ -16,10 +16,14 @@ class Renderer {
 
         uint32_t shaderUnique;
         uint32_t shaderInstanced;
+        uint32_t shaderSelected;
 
         uint32_t uniformColorUnique;
         uint32_t uniformProjectionViewUnique;
         uint32_t uniformProjectionViewInstanced;
+        uint32_t uniformModelCube;
+        uint32_t uniformProjectionViewCube;
+        uint32_t uniformColorCube;
 
         uint32_t selectionCubeVAO; //reuse the vertex buffer, vertex buffer is already a cube
         gpuBuffer selectionCubeEBO;

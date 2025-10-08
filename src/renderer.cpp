@@ -7,15 +7,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <constants.hpp>
 
-/*
- * WHY is there only one shader program????
- * NOTE: in future add support for multiple shader programs and loop through them in renderFrame
-*/
-
-/*
- * NOTE: NEED TO CORRECTLY INITIALIZE VERTEX ATTRIBUTE POINTERS FOR INSTANCED
-*/
-
 Renderer::Renderer(Camera& cameraReference)
  : camera(cameraReference)
 {
@@ -29,6 +20,13 @@ Renderer::Renderer(Camera& cameraReference)
     shaderInstanced = createShader(instancedShaderSource.VertexSource, instancedShaderSource.FragmentSource);
 
     uniformProjectionViewInstanced = glGetUniformLocation(shaderInstanced, "projectionView");
+    
+    ShaderProgramSource selectionCubeSource = parseShader("shaders/renderSelectionCube.shader");
+    shaderSelected = createShader(selectionCubeSource.VertexSource, selectionCubeSource.FragmentSource);
+    
+    uniformModelCube = glGetUniformLocation(shaderSelected, "model");
+    uniformProjectionViewCube = glGetUniformLocation(shaderSelected, "projectionView");
+    uniformColorCube = glGetUniformLocation(shaderSelected, "color");
 
     glGenVertexArrays(1, &selectionCubeVAO);
     glBindVertexArray(selectionCubeVAO);
@@ -93,6 +91,13 @@ void Renderer::renderFrame() {
             glDrawElementsInstanced(GL_TRIANGLES, Geometry::numIndices[meshGroup], GL_UNSIGNED_SHORT, (void*)0, g_componentSystem->instanceCount[meshGroup]);
         }
     }
+
+    //Render the selection cube
+    glm::ivec3 pointerPosition = camera.getCameraRaycast(true);
+    std::cout << pointerPosition.x << ", " << pointerPosition.y << std::endl;
+    
+    /*glBindVertexArray(selectionCubeVAO);
+    glUseProgram(shaderSelected);*/
 
     printOpenGLErrors("OpenGL Error");
 }

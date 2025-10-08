@@ -1,5 +1,6 @@
 #include <camera.hpp>
 #include <constants.hpp>
+#include <3dUtils.hpp>
 
 Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYaw, int windowWidth, int windowHeight)
  : doUpdateMouse(true), cameraPosition(startingPosition), lastMouseX(0.0f), lastMouseY(0.0f), pitch(startingPitch), yaw(startingYaw)
@@ -66,4 +67,8 @@ glm::vec3& Camera::getPosition() {
 
 glm::vec3& Camera::getViewDirection() {
     return cameraAngle;
+}
+
+glm::ivec3 Camera::getCameraRaycast(bool backtrace) {
+    return raycastCamera(cameraPosition, cameraAngle, backtrace);
 }

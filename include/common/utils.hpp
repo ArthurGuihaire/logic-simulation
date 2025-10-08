@@ -27,6 +27,8 @@ constexpr unsigned int roundUpUInt(const unsigned int input, const unsigned int 
 
 bool almostEqual(float a, float b);
 
+bool almostZero(float a, float eps = 1e-5f);
+
 void printOpenGLErrors(const char* printString);
 
 void validateDrawSetup(GLsizei drawCount, GLsizei stride, GLenum indexType);
@@ -40,3 +42,5 @@ bool componentExists(glm::ivec3 position);
 constexpr glm::mat4 scaleMatrix(const glm::vec3 scaleFactor) {
     return glm::mat4(scaleFactor.x, 0.0f, 0.0f, 0.0f, 0.0f, scaleFactor.y, 0.0f, 0.0f, 0.0f, 0.0f, scaleFactor.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
+
+GLFWwindow* initOpenGL();

@@ -10,6 +10,7 @@ class Camera {
         glm::mat4 getViewProjection();
         glm::vec3& getPosition();
         glm::vec3& getViewDirection();
+        glm::ivec3 getCameraRaycast(bool backtrace);
     private:
         glm::vec3 cameraPosition;
         glm::vec3 cameraAngle;
