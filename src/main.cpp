@@ -8,6 +8,8 @@ int main() {
     Camera camera(glm::vec3(-3.0f, 0.0f, 0.0f), 90.0f, 0.0f, windowWidth, windowHeight);
     Renderer renderer(camera);
     UniqueComponentSystem componentSystem(renderer);
+    //Once component system is created, initialize the first raycast
+    camera.updateCameraRaycast(true);
 
     userPointers callbackUtils = {camera, componentSystem, 0};
 

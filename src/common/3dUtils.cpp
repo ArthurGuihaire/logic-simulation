@@ -4,7 +4,7 @@
 constexpr inline float tValueOffset = 1.0e-6;
 
 void updateVariable(float& currentT, float tSlope, float& currentPosition) {
-    const float currentPositionRounded = tSlope < 0 ? 0.5 + glm::floor(currentPosition - 0.5) : 0.5 + glm::ceil(currentPosition - 0.5);
+    const float currentPositionRounded = tSlope < 0 ? 0.5 + glm::floor(currentPosition - tValueOffset - 0.5) : 0.5 + glm::ceil(currentPosition + tValueOffset - 0.5);
     currentT += (currentPositionRounded - currentPosition) * tSlope;
     currentPosition = currentPositionRounded;
 }
@@ -19,28 +19,28 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
 
     //Init all variables
     if (almostZero(cameraAngle.x)) {
-        xNextT = blockInteractRange;
+        xNextT = blockInteractRange + 1;
     }
     else {
         tOverX = 1 / cameraAngle.x;
         xNextT = 0.0f;
-        updateVariable(xNextT, tOverX, cameraPosition.x);
+        updateVariable(xNextT, tOverX, position.x);
     }
     if (almostZero(cameraAngle.y)) {
-        yNextT = blockInteractRange;
+        yNextT = blockInteractRange + 1;
     }
     else {
         tOverY = 1 / cameraAngle.y;
         yNextT = 0.0f;
-        updateVariable(yNextT, tOverY, cameraPosition.y);
+        updateVariable(yNextT, tOverY, position.y);
     }
     if (almostZero(cameraAngle.z)) {
-        zNextT = blockInteractRange;
+        zNextT = blockInteractRange + 1;
     }
     else {
         tOverZ = 1 / cameraAngle.z;
         zNextT = 0.0f;
-        updateVariable(zNextT, tOverZ, cameraPosition.z);
+        updateVariable(zNextT, tOverZ, position.z);
     }
     float t = std::min(xNextT, std::min(yNextT, zNextT));
 
@@ -65,18 +65,19 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
     }
 
     //Now we have an ordered t-array of integer intersections, for 0 <= t <= blockInteractRange
-    for (float t : tValues) {
+    for (uint32_t i = 0; i < numTValues; i++) {
+        t = tValues[i];
         //The block starts right after the intersection
-        glm::ivec3 candidateBlock = glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
+        glm::ivec3 candidateBlock = glm::round(position + cameraAngle * (t + tValueOffset));
         if (componentExists(candidateBlock)) {
             //If we round to right before the interestion
             if (backtrace)
-                return glm::round(cameraPosition + cameraAngle * (t - tValueOffset));
+                return glm::round(position + cameraAngle * (t - tValueOffset));
             else
-                return glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
+                return glm::round(position + cameraAngle * (t + tValueOffset));
         }
     }
 
     //If we never found a block, we simply return the block at the end of the range
-    return glm::round(cameraPosition + cameraAngle * blockInteractRange);
+    return glm::round(position + cameraAngle * blockInteractRange);
 }

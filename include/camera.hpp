@@ -7,15 +7,17 @@ class Camera {
         void updateProjection(const int windowWidth, const int windowHeight);
         void moveCamera(const glm::vec3 relativeMovement);
         void updateMouse(const float mouseX, const float mouseY);
-        glm::mat4 getViewProjection();
-        glm::vec3& getPosition();
-        glm::vec3& getViewDirection();
-        glm::ivec3 getCameraRaycast(bool backtrace);
+        const glm::mat4 getViewProjection() const;
+        const glm::vec3& getPosition() const;
+        const glm::vec3& getViewDirection() const;
+        const glm::ivec3& getPointerPosition() const;
+        void updateCameraRaycast(bool backtrace);
     private:
         glm::vec3 cameraPosition;
         glm::vec3 cameraAngle;
         glm::mat4 view;
         glm::mat4 projection;
+        glm::ivec3 cameraRaycastPosition;
 
         float lastMouseX;
         float lastMouseY;

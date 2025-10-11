@@ -11,7 +11,6 @@ Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYa
 
     view = glm::lookAt(cameraPosition, cameraPosition + cameraAngle, upVector);
     projection = glm::perspective(glm::radians(90.0f), (float) windowWidth / (float) windowHeight, 0.05f, 100.0f);
-    //std::cout << cameraAngle.x << ", " << cameraAngle.y << ", " << cameraAngle.z << std::endl;
 }
 
 void Camera::updateProjection(const int windowWidth, const int windowHeight) {
@@ -57,18 +56,22 @@ void Camera::updateMouse(const float mouseX, const float mouseY) {
     }
 }
 
-glm::mat4 Camera::getViewProjection() {
+const glm::mat4 Camera::getViewProjection() const {
     return (projection * view);
 }
 
-glm::vec3& Camera::getPosition() {
+const glm::vec3& Camera::getPosition() const {
     return cameraPosition;
 }
 
-glm::vec3& Camera::getViewDirection() {
+const glm::vec3& Camera::getViewDirection() const {
     return cameraAngle;
 }
 
-glm::ivec3 Camera::getCameraRaycast(bool backtrace) {
-    return raycastCamera(cameraPosition, cameraAngle, backtrace);
+const glm::ivec3& Camera::getPointerPosition() const {
+    return cameraRaycastPosition;
+}
+
+void Camera::updateCameraRaycast(bool backtrace) {
+    cameraRaycastPosition = raycastCamera(cameraPosition, cameraAngle, backtrace);
 }

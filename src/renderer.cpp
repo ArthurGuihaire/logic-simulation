@@ -66,6 +66,12 @@ void Renderer::initInstanced(uint32_t* instancedVaoArray, gpuBuffer& vertexBuffe
             glVertexAttribDivisor(2 + i, 1);
         }
     }
+
+    glBindVertexArray(selectionCubeVAO);
+    vertexBuffer.bind();
+    selectionCubeEBO.bind();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 }
 
 void Renderer::renderFrame() {
@@ -75,7 +81,7 @@ void Renderer::renderFrame() {
             glUseProgram(shaderUnique);
             glUniform4fv(uniformColorUnique, 1, glm::value_ptr(Color::blue));
 
-            glUniformMatrix4fv(uniformProjectionViewUnique, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
+            glUniformMatrix4fv(uniformProjectionViewUnique, 1, GL_FALSE, glm::value_ptr(camera.getViewProjection()));
 
             glMultiDrawElements(GL_TRIANGLES, &(g_componentSystem->drawCountArray[shaderGroup][0]), GL_UNSIGNED_SHORT, &(g_componentSystem->drawFirstIndexArray[shaderGroup][0]), g_componentSystem->drawCountArray[shaderGroup].size());
         }
@@ -86,18 +92,20 @@ void Renderer::renderFrame() {
             glBindVertexArray(instancedVAO[meshGroup]);
             glUseProgram(shaderInstanced);
 
-            glUniformMatrix4fv(uniformProjectionViewInstanced, 1, GL_FALSE, &camera.getViewProjection()[0][0]);
+            glUniformMatrix4fv(uniformProjectionViewInstanced, 1, GL_FALSE, glm::value_ptr(camera.getViewProjection()));
 
             glDrawElementsInstanced(GL_TRIANGLES, Geometry::numIndices[meshGroup], GL_UNSIGNED_SHORT, (void*)0, g_componentSystem->instanceCount[meshGroup]);
         }
     }
 
-    //Render the selection cube
-    glm::ivec3 pointerPosition = camera.getCameraRaycast(true);
-    std::cout << pointerPosition.x << ", " << pointerPosition.y << std::endl;
+    camera.updateCameraRaycast(true);
     
-    /*glBindVertexArray(selectionCubeVAO);
-    glUseProgram(shaderSelected);*/
+    glBindVertexArray(selectionCubeVAO);
+    glUseProgram(shaderSelected);
+    glUniformMatrix4fv(uniformModelCube, 1, GL_FALSE, glm::value_ptr(glm::translate(identityMat4, (glm::vec3)camera.getPointerPosition())));
+    glUniformMatrix4fv(uniformProjectionViewCube, 1, GL_FALSE, glm::value_ptr(camera.getViewProjection()));
+    glUniform4f(uniformColorCube, 1.0f, 1.0f, 0.0f, 0.5f);
+    glDrawElements(GL_TRIANGLES, Geometry::numIndices[1], GL_UNSIGNED_SHORT, (void*)0);
 
     printOpenGLErrors("OpenGL Error");
 }

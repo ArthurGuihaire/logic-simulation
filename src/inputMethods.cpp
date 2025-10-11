@@ -33,12 +33,12 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
         if (key == Key::placeBlock) {
             UniqueComponentSystem& system = static_cast<userPointers*>(glfwGetWindowUserPointer(window))->componentSystem;
 
-            glm::vec3 cursorPosition = glm::round(camera.getPosition() + blockInteractRange * camera.getViewDirection());
+            //glm::vec3 cursorPosition = glm::round(camera.getPosition() + blockInteractRange * camera.getViewDirection());
 
-            if (itemSelected != 0 && !(componentExists(glm::round(cursorPosition)))) {
-                std::cout << "created component" << std::endl;
+            if (itemSelected != 0 && !(componentExists(camera.getPointerPosition()))) {
+                std::cout << "created component at position " << camera.getPointerPosition().x << ", " << camera.getPointerPosition().y << std::endl;
                 const meshAttributes& attribs = Geometry::meshAttribArray[itemSelected];
-                system.createComponent(glm::round(cursorPosition), attribs.startingMatrix, attribs.color, attribs.meshIndex, attribs.logic);
+                system.createComponent(camera.getPointerPosition(), attribs.startingMatrix, attribs.color, attribs.meshIndex, attribs.logic);
             }
             else {
                 std::cout << "didn't create component" << std::endl;
@@ -102,4 +102,5 @@ void cursor_position_callback(GLFWwindow* window, double x_position, double y_po
     if (mouseIsLocked) {}
         Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
         camera.updateMouse(x_position, y_position);
+        std::cout << "Pointer position: " << camera.getPointerPosition().x << ", " << camera.getPointerPosition().y << std::endl;
 }
