@@ -102,5 +102,4 @@ void cursor_position_callback(GLFWwindow* window, double x_position, double y_po
     if (mouseIsLocked) {}
         Camera& camera = (static_cast<userPointers*>(glfwGetWindowUserPointer(window))->camera);
         camera.updateMouse(x_position, y_position);
-        std::cout << "Pointer position: " << camera.getPointerPosition().x << ", " << camera.getPointerPosition().y << std::endl;
 }

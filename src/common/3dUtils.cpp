@@ -67,17 +67,18 @@ glm::ivec3 raycastCamera(glm::vec3& cameraPosition, glm::vec3& cameraAngle, bool
     //Now we have an ordered t-array of integer intersections, for 0 <= t <= blockInteractRange
     for (uint32_t i = 0; i < numTValues; i++) {
         t = tValues[i];
+        std::cout << t << std::endl;
         //The block starts right after the intersection
-        glm::ivec3 candidateBlock = glm::round(position + cameraAngle * (t + tValueOffset));
+        glm::ivec3 candidateBlock = glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
         if (componentExists(candidateBlock)) {
             //If we round to right before the interestion
             if (backtrace)
-                return glm::round(position + cameraAngle * (t - tValueOffset));
+                return glm::round(cameraPosition + cameraAngle * (t - tValueOffset));
             else
-                return glm::round(position + cameraAngle * (t + tValueOffset));
+                return glm::round(cameraPosition + cameraAngle * (t + tValueOffset));
         }
     }
 
     //If we never found a block, we simply return the block at the end of the range
-    return glm::round(position + cameraAngle * blockInteractRange);
+    return glm::round(cameraPosition + cameraAngle * blockInteractRange);
 }
