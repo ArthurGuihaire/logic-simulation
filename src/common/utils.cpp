@@ -1,9 +1,9 @@
 #include <cstdint>
-#include <utils.hpp>
-#include <arrayUtils.hpp>
+#include <common/utils.hpp>
+#include <common/arrayUtils.hpp>
 #include <cstring> //For std::memcpy
 #include <inputMethods.hpp>
-#include <initializer.hpp>
+#include <common/initializer.hpp>
 
 std::pair<bool, uint32_t> getFreeMemoryRegion(std::vector<std::pair<uint32_t, uint32_t>>& freeMemoryMap, const uint32_t requestedSize) {
     bool freeMemoryExists = false;
@@ -152,7 +152,7 @@ GLFWwindow* initOpenGL() {
 
     //Enable OpenGL depth testing
     glEnable(GL_DEPTH_TEST);
-    
+
     //Enable face culling
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);

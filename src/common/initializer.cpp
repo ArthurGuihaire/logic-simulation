@@ -1,6 +1,6 @@
-#include <initializer.hpp>
+#include <GL/glew.h>
+#include <common/initializer.hpp>
 #include <iostream>
-#include <gl.h>
 
 Initializer::Initializer() {}
 
@@ -39,9 +39,9 @@ GLFWwindow* Initializer::createWindow(bool fullscreen) {
 }
 
 void Initializer::initGLAD() {
-    if (!gladLoadGL(glfwGetProcAddress))
+    if (!glewInit())
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        std::cout << "Failed to initialize GLEW" << std::endl;
         return;
     }
     glViewport(0, 0, windowWidth, windowHeight);

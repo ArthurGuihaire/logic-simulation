@@ -1,7 +1,7 @@
 #include <inputMethods.hpp>
 #include <camera.hpp> //need camera API
 #include <keyBindings.hpp>
-#include <3dUtils.hpp>
+#include <common/3dUtils.hpp>
 
 bool mouseIsLocked = true;
 bool multiTile = false;
@@ -63,7 +63,7 @@ void keypress_callback(GLFWwindow *window, int key, int scancode, int action, in
             }
 
             system.createUniqueComponent(&vertices[0], 36*3, LogicType::AND);*/
-            
+
         }
 
         //Check if mode change

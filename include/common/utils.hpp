@@ -1,5 +1,5 @@
 #pragma once
-#include <componentStructs.hpp>
+#include <common/componentStructs.hpp>
 
 template <typename integerType>
 constexpr integerType roundUpInt(const integerType input, const uint32_t cutoff) {

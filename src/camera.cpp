@@ -1,6 +1,6 @@
 #include <camera.hpp>
-#include <constants.hpp>
-#include <3dUtils.hpp>
+#include <common/constants.hpp>
+#include <common/3dUtils.hpp>
 
 Camera::Camera(glm::vec3 startingPosition, float startingPitch, float startingYaw, int windowWidth, int windowHeight)
  : doUpdateMouse(true), cameraPosition(startingPosition), lastMouseX(0.0f), lastMouseY(0.0f), pitch(startingPitch), yaw(startingYaw)

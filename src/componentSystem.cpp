@@ -1,6 +1,6 @@
 #include <componentSystem.hpp>
 #include <instancedComponents.hpp>
-#include <arrayUtils.hpp>
+#include <common/arrayUtils.hpp>
 #include <cstring> //For memcpy
 
 /*const ComponentSystem &
@@ -10,7 +10,7 @@
 
 UniqueComponentSystem* g_componentSystem = nullptr;
 
-UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer) 
+UniqueComponentSystem::UniqueComponentSystem(Renderer& renderer)
  : ComponentSystem(renderer), indicesFreeMemoryMaybe(false), vertexBuffer(GL_ARRAY_BUFFER)
 {
     //Initialize vertex array
@@ -105,7 +105,7 @@ uint32_t UniqueComponentSystem::addUniqueComponent(const uint16_t* newIndices, u
         //Now we need to merge the draw commands
         const std::pair edgeCommands = findEdgeCommands(drawCountArray[shaderID], drawFirstIndexArray[shaderID], freeMemoryRegion.second, numIndices * sizeof(uint32_t));
         drawCountArray[shaderID][edgeCommands.first] += drawCountArray[shaderID][edgeCommands.second] + numIndices;
-        
+
         std::vector<GLsizei>& counts = drawCountArray[shaderID];
         std::vector<const void*>& indices = drawFirstIndexArray[shaderID];
         //Delete the second command
@@ -145,11 +145,11 @@ void UniqueComponentSystem::removeUniqueComponent(UniqueComponent& removedCompon
         //Since the component is at the end we simply resize the index array to exclude it
         const uint32_t index = findLastCommand(drawCountArray[removedComponent.shaderID], drawFirstIndexArray[removedComponent.shaderID], indices.size());
         drawCountArray[removedComponent.shaderID][index] -= removedComponent.numIndices;
-        
+
         indices.resize(indices.size() - removedComponent.numIndices);
         indexBufferPerShader[removedComponent.shaderID].removeData(removedComponent.numIndices * sizeof(uint16_t));
     }
-    else if (components.back().numIndices == removedComponent.numIndices) { 
+    else if (components.back().numIndices == removedComponent.numIndices) {
         //If the last component is the same size, we can simply overwrite and resize
         UniqueComponent& movedComponent = components.back();
 

@@ -1,6 +1,6 @@
 #include <instancedComponents.hpp>
 #include <cstring> // For std::memcpy
-#include <utils.hpp>
+#include <common/utils.hpp>
 
 ComponentSystem::ComponentSystem(Renderer& renderer) {
     uint32_t vao[numMeshes];

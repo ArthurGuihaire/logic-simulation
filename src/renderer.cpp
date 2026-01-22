@@ -1,18 +1,18 @@
+#include <GL/glew.h>
 #include <componentSystem.hpp>
-#include "gl.h"
-#include "utils.hpp"
+#include <common/utils.hpp>
 #include <renderer.hpp>
-#include <shaderLoader.hpp>
+#include <common/shaderLoader.hpp>
 #include <cstring> //For std::memcpy
 #include <glm/gtc/type_ptr.hpp>
-#include <constants.hpp>
+#include <common/constants.hpp>
 
 Renderer::Renderer(Camera& cameraReference)
  : camera(cameraReference)
 {
     ShaderProgramSource uniqueShaderSource = parseShader("shaders/renderUniqueMesh.shader");
     shaderUnique = createShader(uniqueShaderSource.VertexSource, uniqueShaderSource.FragmentSource);
-    
+
     uniformColorUnique = glGetUniformLocation(shaderUnique, "color");
     uniformProjectionViewUnique = glGetUniformLocation(shaderUnique, "projectionView");
 
@@ -20,10 +20,10 @@ Renderer::Renderer(Camera& cameraReference)
     shaderInstanced = createShader(instancedShaderSource.VertexSource, instancedShaderSource.FragmentSource);
 
     uniformProjectionViewInstanced = glGetUniformLocation(shaderInstanced, "projectionView");
-    
+
     ShaderProgramSource selectionCubeSource = parseShader("shaders/renderSelectionCube.shader");
     shaderSelected = createShader(selectionCubeSource.VertexSource, selectionCubeSource.FragmentSource);
-    
+
     uniformModelCube = glGetUniformLocation(shaderSelected, "model");
     uniformProjectionViewCube = glGetUniformLocation(shaderSelected, "projectionView");
     uniformColorCube = glGetUniformLocation(shaderSelected, "color");
@@ -37,7 +37,7 @@ void Renderer::initUnique(uint32_t* uniqueVaoArray) {
     std::memcpy(&uniqueVAO, uniqueVaoArray, numMeshes * sizeof(uint32_t));
 
     glBindVertexArray(uniqueVAO[0]);
-    
+
     for (uint32_t vertexArray = 0; vertexArray < numShaders; vertexArray++) {
         glBindVertexArray(uniqueVAO[vertexArray]);
         glEnableVertexAttribArray(0);
@@ -47,7 +47,7 @@ void Renderer::initUnique(uint32_t* uniqueVaoArray) {
 
 void Renderer::initInstanced(uint32_t* instancedVaoArray, gpuBuffer& vertexBuffer, gpuBuffer* instanceAttribsBufferArray) {
     std::memcpy(&instancedVAO, instancedVaoArray, numMeshes * sizeof(uint32_t));
-    
+
     for (uint32_t vertexArray = 0; vertexArray < numMeshes; vertexArray++) {
         glBindVertexArray(instancedVAO[vertexArray]);
         //First vertexAttribPointer for vertex position
@@ -99,7 +99,7 @@ void Renderer::renderFrame() {
     }
 
     camera.updateCameraRaycast(true);
-    
+
     glBindVertexArray(selectionCubeVAO);
     glUseProgram(shaderSelected);
     glUniformMatrix4fv(uniformModelCube, 1, GL_FALSE, glm::value_ptr(glm::translate(identityMat4, (glm::vec3)camera.getPointerPosition())));

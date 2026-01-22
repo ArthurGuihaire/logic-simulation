@@ -1,4 +1,4 @@
-#include <utils.hpp>
+#include <common/utils.hpp>
 #include <componentSystem.hpp>
 #include <inputMethods.hpp>
 
@@ -16,7 +16,7 @@ int main() {
     glfwSetWindowUserPointer(window, &callbackUtils); //Make camera accessible inside callback functions
 
     //auto start = std::chrono::high_resolution_clock::now();
-    
+
     componentSystem.createComponent({0.0f, 0.0f, 0.0f}, identityMat4, Color::darkGreen, 1, LogicType::AND);
 
     /*auto end = std::chrono::high_resolution_clock::now();
@@ -37,4 +37,4 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-}   
+}

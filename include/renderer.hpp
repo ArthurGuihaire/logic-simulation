@@ -1,7 +1,7 @@
 #pragma once
-#include <gpuBuffer.hpp>
-#include <constants.hpp>
-#include <componentStructs.hpp>
+#include <common/gpuBuffer.hpp>
+#include <common/constants.hpp>
+#include <common/componentStructs.hpp>
 #include <camera.hpp>
 
 class Renderer {

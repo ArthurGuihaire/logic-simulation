@@ -1,8 +1,8 @@
 #pragma once
-#include <componentStructs.hpp>
-#include <gpuBuffer.hpp>
+#include <common/componentStructs.hpp>
+#include <common/gpuBuffer.hpp>
 #include <renderer.hpp>
-#include <utils.hpp>
+#include <common/utils.hpp>
 #include <unordered_map>
 class ComponentSystem {
     public:

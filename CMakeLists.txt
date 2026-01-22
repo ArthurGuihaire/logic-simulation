@@ -23,14 +23,11 @@ set(INCLUDE_COMMON "${CMAKE_SOURCE_DIR}/include/common")
 # Find required packages
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
+find_package(GLEW REQUIRED)
 
 # Gather C++ source files (excluding gl.c)
 file(GLOB SRC_FILES "${SOURCE_DIR}/*.cpp")
 file(GLOB COMMON_CPP "${SOURCE_DIR}/common/*.cpp")
-
-# Create a static library for gl.c (C-only)
-add_library(glad STATIC "${SOURCE_DIR}/common/gl.c")
-target_include_directories(glad PUBLIC ${INCLUDE_DIR} ${INCLUDE_COMMON})
 
 # Create the executable with only C++ files
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${COMMON_CPP})
@@ -40,7 +37,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR}/openglPCH.hpp)
 
 # Link required libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw glad dl)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL GLEW::GLEW glfw dl)
 
 # Copy shaders and textures directories to the build directory
 file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR})

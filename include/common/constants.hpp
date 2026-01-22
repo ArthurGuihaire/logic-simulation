@@ -1,7 +1,7 @@
 #pragma once
-#include <utils.hpp>
+#include <common/utils.hpp>
 #include <glm/glm.hpp>
-#include <componentStructs.hpp>
+#include <common/componentStructs.hpp>
 constexpr uint16_t windowWidth = 800;
 constexpr uint16_t windowHeight = 600;
 
@@ -112,5 +112,3 @@ namespace Geometry {
     constexpr uint32_t totalSizeVertices = sizeof(vertices);
     constexpr uint32_t totalSizeIndices = sizeof(indices);
 }
-
-

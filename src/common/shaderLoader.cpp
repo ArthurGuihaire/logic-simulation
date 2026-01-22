@@ -1,5 +1,5 @@
-#include <shaderLoader.hpp>
-#include <gl.h>
+#include <common/shaderLoader.hpp>
+#include <GL/glew.h>
 #include <fstream>
 #include <iostream>
 
@@ -18,7 +18,7 @@ ShaderProgramSource parseShader(const std::string& filepath) {
         std::cerr << "Failed to open shader file: " << filepath << std::endl;
         return {};
     }
-    
+
     while (getline(stream, line)) {
         if (line.find("#shader") != std::string::npos) {
             if (line.find("vertex") != std::string::npos)
@@ -48,7 +48,7 @@ unsigned int compileShader(unsigned int type, const std::string& source) {
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)alloca(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
-        std::cout << "failed to compile " << 
+        std::cout << "failed to compile " <<
             (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader" << message << std::endl;
 
         glDeleteShader(id);
